@@ -68,6 +68,13 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
       isRecurring: formData.isRecurring,
       frequency: formData.isRecurring ? formData.frequency : undefined,
     };
+
+    // Vérifie si la date n'est pas dans le futur
+    if (newTransaction.date > new Date()) {
+      alert("La date ne peut pas être dans le futur");
+      return;
+    }
+
     onSubmit(newTransaction);
   };
 
@@ -119,6 +126,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
               id="date"
               type="date"
               required
+              max={new Date().toISOString().split("T")[0]}
               value={formData.date}
               onChange={(e) =>
                 setFormData({ ...formData, date: e.target.value })

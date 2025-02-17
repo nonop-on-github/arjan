@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Transaction } from "@/types/finance";
 import { PlusCircle, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,15 +14,25 @@ const Index = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Utilisé pour éviter l'hydration mismatch avec next-themes
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const addTransaction = (transaction: Transaction) => {
-    setTransactions((prev) => [transaction, ...prev]);
+    setTransactions((prev) => 
+      [...prev, transaction].sort((a, b) => b.date.getTime() - a.date.getTime())
+    );
     setShowTransactionForm(false);
   };
 
   const updateTransaction = (updatedTransaction: Transaction) => {
     setTransactions((prev) =>
-      prev.map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t))
+      prev
+        .map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t))
+        .sort((a, b) => b.date.getTime() - a.date.getTime())
     );
     setEditingTransaction(null);
   };
@@ -30,6 +40,27 @@ const Index = () => {
   const deleteTransaction = (id: string) => {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
+
+  // Effet pour synchroniser avec le thème système
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        setTheme(e.matches ? 'dark' : 'light');
+      };
+      
+      // Initial setup
+      setTheme(mediaQuery.matches ? 'dark' : 'light');
+      
+      // Listen for changes
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, [setTheme]);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background p-6 animate-fadeIn">
