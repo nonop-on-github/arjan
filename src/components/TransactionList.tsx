@@ -10,13 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CalendarClock, Search } from "lucide-react";
+import { CalendarClock, Search, Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TransactionListProps {
   transactions: Transaction[];
+  onEdit: (transaction: Transaction) => void;
+  onDelete: (id: string) => void;
 }
 
-const TransactionList = ({ transactions }: TransactionListProps) => {
+const TransactionList = ({ transactions, onEdit, onDelete }: TransactionListProps) => {
   const [search, setSearch] = useState("");
 
   const filteredTransactions = transactions.filter(
@@ -49,6 +52,7 @@ const TransactionList = ({ transactions }: TransactionListProps) => {
               <TableHead>Catégorie</TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="text-right">Montant</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,6 +76,22 @@ const TransactionList = ({ transactions }: TransactionListProps) => {
                 >
                   {transaction.type === "income" ? "+" : "-"}
                   {transaction.amount.toLocaleString("fr-FR")}€
+                </TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEdit(transaction)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDelete(transaction.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

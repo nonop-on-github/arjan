@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -26,11 +26,12 @@ const categories = [
 ];
 
 interface TransactionFormProps {
+  transaction?: Transaction | null;
   onSubmit: (transaction: Transaction) => void;
   onClose: () => void;
 }
 
-const TransactionForm = ({ onSubmit, onClose }: TransactionFormProps) => {
+const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProps) => {
   const [formData, setFormData] = useState({
     amount: "",
     type: "expense" as TransactionType,
@@ -41,10 +42,24 @@ const TransactionForm = ({ onSubmit, onClose }: TransactionFormProps) => {
     frequency: "monthly" as TransactionFrequency,
   });
 
+  useEffect(() => {
+    if (transaction) {
+      setFormData({
+        amount: transaction.amount.toString(),
+        type: transaction.type,
+        date: new Date(transaction.date).toISOString().split("T")[0],
+        description: transaction.description,
+        category: transaction.category,
+        isRecurring: transaction.isRecurring,
+        frequency: transaction.frequency || "monthly",
+      });
+    }
+  }, [transaction]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const transaction: Transaction = {
-      id: Date.now().toString(),
+    const newTransaction: Transaction = {
+      id: transaction?.id || Date.now().toString(),
       amount: parseFloat(formData.amount),
       type: formData.type,
       date: new Date(formData.date),
@@ -53,14 +68,16 @@ const TransactionForm = ({ onSubmit, onClose }: TransactionFormProps) => {
       isRecurring: formData.isRecurring,
       frequency: formData.isRecurring ? formData.frequency : undefined,
     };
-    onSubmit(transaction);
+    onSubmit(newTransaction);
   };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Nouvelle Transaction</DialogTitle>
+          <DialogTitle>
+            {transaction ? "Modifier la Transaction" : "Nouvelle Transaction"}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
@@ -177,7 +194,9 @@ const TransactionForm = ({ onSubmit, onClose }: TransactionFormProps) => {
             <Button variant="outline" type="button" onClick={onClose}>
               Annuler
             </Button>
-            <Button type="submit">Ajouter</Button>
+            <Button type="submit">
+              {transaction ? "Modifier" : "Ajouter"}
+            </Button>
           </div>
         </form>
       </DialogContent>
