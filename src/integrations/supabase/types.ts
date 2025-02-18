@@ -49,6 +49,7 @@ export type Database = {
           is_recurring: boolean | null
           next_date: string | null
           type: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
         }
         Insert: {
           amount: number
@@ -64,6 +65,7 @@ export type Database = {
           is_recurring?: boolean | null
           next_date?: string | null
           type: Database["public"]["Enums"]["transaction_type"]
+          user_id?: string
         }
         Update: {
           amount?: number
@@ -79,6 +81,7 @@ export type Database = {
           is_recurring?: boolean | null
           next_date?: string | null
           type?: Database["public"]["Enums"]["transaction_type"]
+          user_id?: string
         }
         Relationships: []
       }
