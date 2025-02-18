@@ -4,11 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import { AuthProvider, useAuthContext } from "@/components/providers/AuthProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -31,19 +32,5 @@ const App = () => (
     </QueryClientProvider>
   </ThemeProvider>
 );
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuthContext();
-  
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
-  if (!session) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  return children;
-};
 
 export default App;
