@@ -9,52 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      transactions: {
-        Row: {
-          amount: number
-          category: string
-          created_at: string | null
-          date: string
-          description: string
-          end_date: string | null
-          frequency: Database["public"]["Enums"]["transaction_frequency"] | null
-          id: string
-          is_recurring: boolean | null
-          next_date: string | null
-          type: Database["public"]["Enums"]["transaction_type"]
-        }
-        Insert: {
-          amount: number
-          category: string
-          created_at?: string | null
-          date: string
-          description: string
-          end_date?: string | null
-          frequency?:
-            | Database["public"]["Enums"]["transaction_frequency"]
-            | null
-          id?: string
-          is_recurring?: boolean | null
-          next_date?: string | null
-          type: Database["public"]["Enums"]["transaction_type"]
-        }
-        Update: {
-          amount?: number
-          category?: string
-          created_at?: string | null
-          date?: string
-          description?: string
-          end_date?: string | null
-          frequency?:
-            | Database["public"]["Enums"]["transaction_frequency"]
-            | null
-          id?: string
-          is_recurring?: boolean | null
-          next_date?: string | null
-          type?: Database["public"]["Enums"]["transaction_type"]
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
@@ -63,8 +18,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      transaction_frequency: "once" | "monthly" | "yearly"
-      transaction_type: "income" | "expense"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
