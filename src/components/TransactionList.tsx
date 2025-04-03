@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CalendarClock, Search, Pencil, Trash2, ArrowUpDown, Filter } from "lucide-react";
+import { CalendarClock, Search, Pencil, Trash2, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -70,7 +70,7 @@ const TransactionList = ({ transactions, onEdit, onDelete }: TransactionListProp
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Transactions</h2>
         <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Rechercher..."
             value={search}
@@ -80,7 +80,7 @@ const TransactionList = ({ transactions, onEdit, onDelete }: TransactionListProp
         </div>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="border rounded-lg dark:border-border">
         <Table>
           <TableHeader>
             <TableRow>

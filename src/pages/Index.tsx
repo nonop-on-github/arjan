@@ -6,6 +6,7 @@ import TransactionForm from "@/components/TransactionForm";
 import Dashboard from "@/components/Dashboard";
 import TransactionList from "@/components/TransactionList";
 import Header from "@/components/Header";
+import IncomeConfetti from "@/components/IncomeConfetti";
 import { useTheme } from "next-themes";
 import { useTransactions } from "@/hooks/useTransactions";
 
@@ -13,7 +14,8 @@ const Index = () => {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [mounted, setMounted] = useState(false);
-  const { setTheme } = useTheme();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { setTheme, theme } = useTheme();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
 
   // Utilisé pour éviter l'hydration mismatch avec next-themes
@@ -44,6 +46,11 @@ const Index = () => {
       : await addTransaction(transaction);
     
     if (success) {
+      // Montrer les confettis uniquement pour les nouveaux revenus
+      if (!editingTransaction && transaction.type === "income") {
+        setShowConfetti(true);
+      }
+      
       setShowTransactionForm(false);
       setEditingTransaction(null);
     }
@@ -80,6 +87,11 @@ const Index = () => {
             }}
           />
         )}
+        
+        <IncomeConfetti 
+          show={showConfetti} 
+          onComplete={() => setShowConfetti(false)} 
+        />
       </div>
     </div>
   );
