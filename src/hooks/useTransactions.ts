@@ -4,6 +4,10 @@ import { Transaction } from "@/types/finance";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { Database } from "@/integrations/supabase/types";
+
+// Type for database transactions
+type DbTransaction = Database['public']['Tables']['transactions']['Row'];
 
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -23,7 +27,10 @@ export const useTransactions = () => {
         .from('transactions')
         .select('*')
         .eq('user_id', user.id)
-        .order('date', { ascending: false });
+        .order('date', { ascending: false }) as { 
+          data: DbTransaction[] | null; 
+          error: Error | null 
+        };
 
       if (error) throw error;
 
@@ -79,7 +86,10 @@ export const useTransactions = () => {
           end_date: transaction.endDate?.toISOString().split('T')[0],
         })
         .select()
-        .single();
+        .single() as {
+          data: DbTransaction | null;
+          error: Error | null;
+        };
 
       if (error) throw error;
 
