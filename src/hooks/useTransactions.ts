@@ -3,33 +3,42 @@ import { useState, useEffect } from "react";
 import { Transaction } from "@/types/finance";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuthContext();
 
   const fetchTransactions = async () => {
+    if (!user) {
+      setTransactions([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
+        .eq('user_id', user.id)
         .order('date', { ascending: false });
 
       if (error) throw error;
 
-      const formattedTransactions: Transaction[] = data.map(t => ({
+      const formattedTransactions: Transaction[] = data ? data.map(t => ({
         id: t.id,
         amount: Number(t.amount),
         type: t.type,
         date: new Date(t.date),
         description: t.description,
         category: t.category,
-        isRecurring: t.is_recurring,
+        isRecurring: t.is_recurring ?? false,
         frequency: t.frequency || undefined,
         nextDate: t.next_date ? new Date(t.next_date) : undefined,
         endDate: t.end_date ? new Date(t.end_date) : undefined,
-      }));
+      })) : [];
 
       setTransactions(formattedTransactions);
     } catch (error) {
@@ -45,10 +54,20 @@ export const useTransactions = () => {
   };
 
   const addTransaction = async (transaction: Transaction) => {
+    if (!user) {
+      toast({
+        title: "Erreur",
+        description: "Vous devez être connecté pour ajouter une transaction",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     try {
       const { data, error } = await supabase
         .from('transactions')
         .insert({
+          user_id: user.id,
           amount: transaction.amount,
           type: transaction.type,
           date: transaction.date.toISOString().split('T')[0],
@@ -64,27 +83,30 @@ export const useTransactions = () => {
 
       if (error) throw error;
 
-      const newTransaction: Transaction = {
-        id: data.id,
-        amount: Number(data.amount),
-        type: data.type,
-        date: new Date(data.date),
-        description: data.description,
-        category: data.category,
-        isRecurring: data.is_recurring,
-        frequency: data.frequency || undefined,
-        nextDate: data.next_date ? new Date(data.next_date) : undefined,
-        endDate: data.end_date ? new Date(data.end_date) : undefined,
-      };
+      if (data) {
+        const newTransaction: Transaction = {
+          id: data.id,
+          amount: Number(data.amount),
+          type: data.type,
+          date: new Date(data.date),
+          description: data.description,
+          category: data.category,
+          isRecurring: data.is_recurring ?? false,
+          frequency: data.frequency || undefined,
+          nextDate: data.next_date ? new Date(data.next_date) : undefined,
+          endDate: data.end_date ? new Date(data.end_date) : undefined,
+        };
 
-      setTransactions(prev => 
-        [...prev, newTransaction].sort((a, b) => b.date.getTime() - a.date.getTime())
-      );
-      toast({
-        title: "Succès",
-        description: "Transaction ajoutée",
-      });
-      return true;
+        setTransactions(prev => 
+          [...prev, newTransaction].sort((a, b) => b.date.getTime() - a.date.getTime())
+        );
+        toast({
+          title: "Succès",
+          description: "Transaction ajoutée",
+        });
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast({
@@ -97,6 +119,15 @@ export const useTransactions = () => {
   };
 
   const updateTransaction = async (updatedTransaction: Transaction) => {
+    if (!user) {
+      toast({
+        title: "Erreur",
+        description: "Vous devez être connecté pour mettre à jour une transaction",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     try {
       const { error } = await supabase
         .from('transactions')
@@ -111,7 +142,8 @@ export const useTransactions = () => {
           next_date: updatedTransaction.nextDate?.toISOString().split('T')[0],
           end_date: updatedTransaction.endDate?.toISOString().split('T')[0],
         })
-        .eq('id', updatedTransaction.id);
+        .eq('id', updatedTransaction.id)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
@@ -137,11 +169,21 @@ export const useTransactions = () => {
   };
 
   const deleteTransaction = async (id: string) => {
+    if (!user) {
+      toast({
+        title: "Erreur",
+        description: "Vous devez être connecté pour supprimer une transaction",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('transactions')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
@@ -161,8 +203,13 @@ export const useTransactions = () => {
   };
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    if (user) {
+      fetchTransactions();
+    } else {
+      setTransactions([]);
+      setIsLoading(false);
+    }
+  }, [user]);
 
   return {
     transactions,
