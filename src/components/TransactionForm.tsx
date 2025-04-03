@@ -15,13 +15,13 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 const categories = [
-  "Alimentation",
-  "Transport",
-  "Logement",
-  "Loisirs",
-  "Santé",
-  "Shopping",
-  "Abonnements",
+  "🥦 Alimentation",
+  "🚌 Transport",
+  "🏠 Logement",
+  "🎢 Loisirs",
+  "🩺 Santé",
+  "🛒 Shopping",
+  "📱 Abonnements",
   "Autres",
 ];
 

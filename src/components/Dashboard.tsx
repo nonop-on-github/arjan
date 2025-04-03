@@ -60,7 +60,7 @@ const Dashboard = ({ transactions }: DashboardProps) => {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
-              Solde Actuel
+              Solde actuel
             </p>
             <h2 className="text-3xl font-bold">
               {stats.currentBalance.toLocaleString("fr-FR")}€
@@ -76,7 +76,7 @@ const Dashboard = ({ transactions }: DashboardProps) => {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
-              Revenus Totaux
+              Revenus totaux
             </p>
             <h2 className="text-3xl font-bold text-income">
               {stats.totalIncome.toLocaleString("fr-FR")}€
@@ -92,7 +92,7 @@ const Dashboard = ({ transactions }: DashboardProps) => {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
-              Dépenses Totales
+              Dépenses totales
             </p>
             <h2 className="text-3xl font-bold text-expense">
               {stats.totalExpenses.toLocaleString("fr-FR")}€
@@ -102,7 +102,7 @@ const Dashboard = ({ transactions }: DashboardProps) => {
       </Card>
 
       <Card className="col-span-full p-6 animate-slideIn [animation-delay:300ms]">
-        <h3 className="text-lg font-semibold mb-4">Dépenses par Catégorie</h3>
+        <h3 className="text-lg font-semibold mb-4">Dépenses par catégorie</h3>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={categoryTotals}>

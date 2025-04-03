@@ -18,7 +18,7 @@ const IncomeConfetti = ({ show, onComplete }: IncomeConfettiProps) => {
       const timer = setTimeout(() => {
         setIsActive(false);
         onComplete();
-      }, 4000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [show, onComplete]);
