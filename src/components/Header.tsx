@@ -19,7 +19,7 @@ const Header = ({ onNewTransaction }: HeaderProps) => {
 
   return (
     <header className="flex items-center justify-between">
-      <h1 className="text-4xl font-bold tracking-tight">Finance Personnel</h1>
+      <h1 className="text-4xl font-bold tracking-tight">arjan</h1>
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
@@ -37,7 +37,7 @@ const Header = ({ onNewTransaction }: HeaderProps) => {
           className="flex items-center gap-2"
         >
           <PlusCircle className="w-5 h-5" />
-          Nouvelle Transaction
+          Nouvelle transaction
         </Button>
         {user && (
           <UserMenu />

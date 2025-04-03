@@ -35,8 +35,8 @@ const Login = () => {
       if (error) throw error;
       
       toast({
-        title: "Succès",
-        description: "Connexion réussie",
+        title: "Connexion réussie",
+        description: "Bienvenue sur votre espace personnel !",
       });
       
       navigate('/');
@@ -56,18 +56,18 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Finance Personnel</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">arjan</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">Email</label>
+              <label htmlFor="email" className="text-sm font-medium">Adresse mail</label>
               <Input 
                 id="email" 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="nom@example.com"
+                placeholder="jaime.l@arjan.com"
                 disabled={isLoading}
               />
             </div>
