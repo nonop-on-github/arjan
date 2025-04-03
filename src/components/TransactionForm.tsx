@@ -121,7 +121,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">Date (MM/JJ/AAAA)</Label>
             <Input
               id="date"
               type="date"
