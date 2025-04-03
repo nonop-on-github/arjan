@@ -71,7 +71,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
 
     // Vérifie si la date n'est pas dans le futur
     if (newTransaction.date > new Date()) {
-      alert("La date ne peut pas être dans le futur");
+      alert("La date ne peut pas être dans le futur. Ok vous êtes peut-être visionnaire mais n'abusez pas svp.");
       return;
     }
 
@@ -83,7 +83,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {transaction ? "Modifier la Transaction" : "Nouvelle Transaction"}
+            {transaction ? "Modifier la transaction" : "Nouvelle transaction"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
