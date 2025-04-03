@@ -10,8 +10,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CalendarClock, Search, Pencil, Trash2 } from "lucide-react";
+import { CalendarClock, Search, Pencil, Trash2, ArrowUpDown, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -19,14 +25,45 @@ interface TransactionListProps {
   onDelete: (id: string) => void;
 }
 
+type SortField = "date" | "amount" | "category";
+type SortOrder = "asc" | "desc";
+
 const TransactionList = ({ transactions, onEdit, onDelete }: TransactionListProps) => {
   const [search, setSearch] = useState("");
+  const [sortField, setSortField] = useState<SortField>("date");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
-  const filteredTransactions = transactions.filter(
-    (transaction) =>
-      transaction.description.toLowerCase().includes(search.toLowerCase()) ||
-      transaction.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("desc");
+    }
+  };
+
+  const filteredTransactions = transactions
+    .filter(
+      (transaction) =>
+        transaction.description.toLowerCase().includes(search.toLowerCase()) ||
+        transaction.category.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortField === "date") {
+        return sortOrder === "asc" 
+          ? a.date.getTime() - b.date.getTime() 
+          : b.date.getTime() - a.date.getTime();
+      } else if (sortField === "amount") {
+        return sortOrder === "asc" 
+          ? a.amount - b.amount 
+          : b.amount - a.amount;
+      } else if (sortField === "category") {
+        return sortOrder === "asc" 
+          ? a.category.localeCompare(b.category) 
+          : b.category.localeCompare(a.category);
+      }
+      return 0;
+    });
 
   return (
     <div className="space-y-4">
@@ -47,11 +84,56 @@ const TransactionList = ({ transactions, onEdit, onDelete }: TransactionListProp
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
+              <TableHead>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex items-center gap-1 -ml-4"
+                  onClick={() => toggleSort("date")}
+                >
+                  Date
+                  <ArrowUpDown className="h-4 w-4" />
+                  {sortField === "date" && (
+                    <span className="text-xs ml-1">
+                      ({sortOrder === "asc" ? "↑" : "↓"})
+                    </span>
+                  )}
+                </Button>
+              </TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Catégorie</TableHead>
+              <TableHead>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex items-center gap-1 -ml-4"
+                  onClick={() => toggleSort("category")}
+                >
+                  Catégorie
+                  <ArrowUpDown className="h-4 w-4" />
+                  {sortField === "category" && (
+                    <span className="text-xs ml-1">
+                      ({sortOrder === "asc" ? "↑" : "↓"})
+                    </span>
+                  )}
+                </Button>
+              </TableHead>
               <TableHead>Type</TableHead>
-              <TableHead className="text-right">Montant</TableHead>
+              <TableHead className="text-right">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex items-center gap-1 justify-end ml-auto"
+                  onClick={() => toggleSort("amount")}
+                >
+                  Montant
+                  <ArrowUpDown className="h-4 w-4" />
+                  {sortField === "amount" && (
+                    <span className="text-xs ml-1">
+                      ({sortOrder === "asc" ? "↑" : "↓"})
+                    </span>
+                  )}
+                </Button>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
