@@ -2,9 +2,8 @@
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { 
-  Sun, 
-  Moon, 
-  PlusCircle
+  PlusCircle,
+  User
 } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
 import UserMenu from "./UserMenu";

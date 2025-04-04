@@ -53,48 +53,62 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">arjan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">Adresse mail</label>
-              <Input 
-                id="email" 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jaime.l@arjan.com"
-                disabled={isLoading}
-              />
+    <div className="flex min-h-screen bg-background">
+      {/* Logo en haut à gauche */}
+      <Link to="/" className="absolute top-6 left-6 text-2xl font-bold tracking-tight">arjan</Link>
+      
+      {/* Section formulaire (gauche) */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">Adresse mail</label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="jaime.l@arjan.com"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium">Mot de passe</label>
+                <Input 
+                  id="password" 
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Connexion..." : "Se connecter"}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-2">
+            <div className="text-sm text-center text-muted-foreground">
+              Pas encore de compte ?{" "}
+              <Link to="/register" className="text-primary hover:underline">
+                S'inscrire
+              </Link>
             </div>
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">Mot de passe</label>
-              <Input 
-                id="password" 
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Connexion..." : "Se connecter"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-2">
-          <div className="text-sm text-center text-muted-foreground">
-            Pas encore de compte ?{" "}
-            <Link to="/register" className="text-primary hover:underline">
-              S'inscrire
-            </Link>
-          </div>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      </div>
+      
+      {/* Section verte (droite) */}
+      <div className="hidden md:flex flex-1 bg-green-500 items-center justify-center">
+        <div className="text-white text-center p-8 max-w-lg">
+          <h2 className="text-3xl font-bold mb-4">Gérez vos dépenses et revenus facilement. 💸</h2>
+          <p className="text-white/80 text-lg">Suivez vos finances, créez un budget et atteignez vos objectifs financiers en toute simplicité.</p>
+        </div>
+      </div>
     </div>
   );
 };

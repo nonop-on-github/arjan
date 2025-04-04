@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Transaction } from "@/types/finance";
 import { Card } from "@/components/ui/card";
 import TransactionForm from "@/components/TransactionForm";
@@ -9,14 +9,18 @@ import Header from "@/components/Header";
 import IncomeConfetti from "@/components/IncomeConfetti";
 import { useTheme } from "next-themes";
 import { useTransactions } from "@/hooks/useTransactions";
+import { PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [mounted, setMounted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showFloatingButton, setShowFloatingButton] = useState(false);
   const { setTheme, theme } = useTheme();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
+  const pageRef = useRef<HTMLDivElement>(null);
 
   // Utilisé pour éviter l'hydration mismatch avec next-themes
   useEffect(() => {
@@ -40,6 +44,17 @@ const Index = () => {
     }
   }, [setTheme]);
 
+  // Gérer l'affichage du bouton flottant lors du défilement
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!pageRef.current) return;
+      setShowFloatingButton(window.scrollY > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleSubmitTransaction = async (transaction: Transaction) => {
     const success = editingTransaction 
       ? await updateTransaction(transaction)
@@ -61,7 +76,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6 animate-fadeIn">
+    <div className="min-h-screen bg-background p-6 animate-fadeIn" ref={pageRef}>
       <div className="max-w-7xl mx-auto space-y-8">
         <Header onNewTransaction={() => setShowTransactionForm(true)} />
 
@@ -92,6 +107,16 @@ const Index = () => {
           show={showConfetti} 
           onComplete={() => setShowConfetti(false)} 
         />
+        
+        {/* Bouton flottant pour nouvelle transaction */}
+        {showFloatingButton && (
+          <Button
+            onClick={() => setShowTransactionForm(true)}
+            className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg bg-black text-white p-0 flex items-center justify-center"
+          >
+            <PlusCircle size={24} />
+          </Button>
+        )}
       </div>
     </div>
   );
