@@ -138,20 +138,22 @@ const Register = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                 />
-                <div className="mt-1 space-y-1">
-                  <Progress 
-                    value={passwordStrength} 
-                    className="h-2"
-                    indicatorClassName={getPasswordStrengthColor()}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {passwordStrength <= 20 && "Très faible"}
-                    {passwordStrength > 20 && passwordStrength <= 40 && "Faible"}
-                    {passwordStrength > 40 && passwordStrength <= 60 && "Moyen"}
-                    {passwordStrength > 60 && passwordStrength <= 80 && "Fort"}
-                    {passwordStrength > 80 && "Très fort"}
-                  </p>
-                </div>
+                {password && (
+                  <div className="mt-1 space-y-1">
+                    <Progress 
+                      value={passwordStrength} 
+                      className="h-2"
+                      indicatorClassName={getPasswordStrengthColor()}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {passwordStrength <= 20 && "Très faible"}
+                      {passwordStrength > 20 && passwordStrength <= 40 && "Faible"}
+                      {passwordStrength > 40 && passwordStrength <= 60 && "Moyen"}
+                      {passwordStrength > 60 && passwordStrength <= 80 && "Fort"}
+                      {passwordStrength > 80 && "Très fort"}
+                    </p>
+                  </div>
+                )}
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Création en cours..." : "S'inscrire"}
