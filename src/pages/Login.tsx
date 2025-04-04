@@ -73,7 +73,7 @@ const Login = () => {
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nom@example.com"
+                  placeholder="jaime.l@arjan.com"
                   disabled={isLoading}
                 />
               </div>
@@ -107,7 +107,7 @@ const Login = () => {
       <div className="hidden md:flex flex-1 bg-green-500 items-center justify-center">
         <div className="text-white text-center p-8 max-w-lg">
           <h2 className="text-3xl font-bold mb-4">Gérez vos dépenses et revenus facilement. 💸</h2>
-          <p className="text-white/80 text-lg">Suivez vos finances, créez un budget et atteignez vos objectifs financiers en toute simplicité.</p>
+          <p className="text-white/80 text-lg">Suivez vos finances, et voyez y plus clair en toute simplicité.</p>
         </div>
       </div>
     </div>

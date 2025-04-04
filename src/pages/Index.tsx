@@ -114,7 +114,7 @@ const Index = () => {
             onClick={() => setShowTransactionForm(true)}
             className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg bg-black text-white p-0 flex items-center justify-center transition-all duration-300 animate-scale-in hover:scale-110"
           >
-            <PlusCircle size={32} className="animate-pulse" />
+            <PlusCircle size={48} />
           </Button>
         )}
       </div>

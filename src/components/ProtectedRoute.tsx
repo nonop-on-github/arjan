@@ -11,7 +11,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuthContext();
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">*vos billets se réveillent*</div>;
+    return <div className="flex items-center justify-center h-screen">*votre compte se réveille*</div>;
   }
 
   if (!user) {

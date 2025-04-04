@@ -116,20 +116,21 @@ const Register = () => {
                     type="text" 
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Votre prénom"
+                    placeholder="Jaime"
                     disabled={isLoading}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="lastName" className="text-sm font-medium">Nom</label>
+                  <label htmlFor="lastName" className="text-sm font-medium">Nom *</label>
                   <Input 
                     id="lastName" 
                     type="text" 
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Votre nom"
+                    placeholder="Larjan"
                     disabled={isLoading}
+                    required
                   />
                 </div>
               </div>
@@ -140,7 +141,7 @@ const Register = () => {
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nom@example.com"
+                  placeholder="jaime.l@arjan.com"
                   disabled={isLoading}
                   required
                 />
