@@ -46,6 +46,7 @@ const Profile = () => {
     setIsLoading(true);
     
     try {
+      // Mettre à jour la table profiles au lieu de transactions
       const { error } = await supabase
         .from('profiles')
         .update({ first_name: firstName })

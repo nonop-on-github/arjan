@@ -32,6 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      // Utiliser la nouvelle table profiles au lieu de la table transactions
       const { data, error } = await supabase
         .from('profiles')
         .select('first_name')
@@ -43,6 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
+      // Mapper correctement les données du profil
       setUserProfile(data ? { firstName: data.first_name } : null);
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
