@@ -18,7 +18,10 @@ const Header = ({ onNewTransaction }: HeaderProps) => {
 
   return (
     <header className="flex items-center justify-between">
-      <h1 className="text-4xl font-bold tracking-tight">arjan</h1>
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+        <h1 className="text-4xl font-bold tracking-tight">arjan</h1>
+      </div>
       <div className="flex items-center gap-4">
         <Button
           onClick={onNewTransaction}

@@ -108,13 +108,13 @@ const Index = () => {
           onComplete={() => setShowConfetti(false)} 
         />
         
-        {/* Bouton flottant pour nouvelle transaction */}
+        {/* Bouton flottant pour nouvelle transaction avec animation */}
         {showFloatingButton && (
           <Button
             onClick={() => setShowTransactionForm(true)}
-            className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg bg-black text-white p-0 flex items-center justify-center"
+            className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg bg-black text-white p-0 flex items-center justify-center transition-all duration-300 animate-scale-in hover:scale-110"
           >
-            <PlusCircle size={24} />
+            <PlusCircle size={32} className="animate-pulse" />
           </Button>
         )}
       </div>

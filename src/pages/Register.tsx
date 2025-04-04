@@ -1,26 +1,54 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { Progress } from '@/components/ui/progress';
 
 const Register = () => {
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Calcul de la force du mot de passe
+  useEffect(() => {
+    if (!password) {
+      setPasswordStrength(0);
+      return;
+    }
+
+    // Critères simples pour évaluer la force du mot de passe
+    let strength = 0;
+    if (password.length >= 8) strength += 20;
+    if (password.match(/[A-Z]/)) strength += 20;
+    if (password.match(/[a-z]/)) strength += 20;
+    if (password.match(/[0-9]/)) strength += 20;
+    if (password.match(/[^A-Za-z0-9]/)) strength += 20;
+
+    setPasswordStrength(strength);
+  }, [password]);
+
+  // Fonction pour obtenir la couleur de la barre de progression
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength <= 20) return 'bg-red-500';
+    if (passwordStrength <= 40) return 'bg-orange-500';
+    if (passwordStrength <= 60) return 'bg-yellow-500';
+    if (passwordStrength <= 80) return 'bg-blue-500';
+    return 'bg-green-500';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!firstName || !email || !password || !confirmPassword) {
+    if (!firstName || !email || !password) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs",
@@ -29,10 +57,10 @@ const Register = () => {
       return;
     }
     
-    if (password !== confirmPassword) {
+    if (passwordStrength < 40) {
       toast({
-        title: "Erreur",
-        description: "Les mots de passe ne correspondent pas",
+        title: "Mot de passe trop faible",
+        description: "Veuillez choisir un mot de passe plus sécurisé",
         variant: "destructive",
       });
       return;
@@ -65,8 +93,11 @@ const Register = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Logo en haut à gauche */}
-      <Link to="/" className="absolute top-6 left-6 text-2xl font-bold tracking-tight">arjan</Link>
+      {/* Logo en haut à gauche avec espace pour image */}
+      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
+        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+        <span className="text-2xl font-bold tracking-tight">arjan</span>
+      </Link>
       
       {/* Section formulaire (gauche) */}
       <div className="flex-1 flex items-center justify-center p-4">
@@ -107,16 +138,20 @@ const Register = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                 />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium">Confirmer le mot de passe</label>
-                <Input 
-                  id="confirmPassword" 
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={isLoading}
-                />
+                <div className="mt-1 space-y-1">
+                  <Progress 
+                    value={passwordStrength} 
+                    className="h-2"
+                    indicatorClassName={getPasswordStrengthColor()}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {passwordStrength <= 20 && "Très faible"}
+                    {passwordStrength > 20 && passwordStrength <= 40 && "Faible"}
+                    {passwordStrength > 40 && passwordStrength <= 60 && "Moyen"}
+                    {passwordStrength > 60 && passwordStrength <= 80 && "Fort"}
+                    {passwordStrength > 80 && "Très fort"}
+                  </p>
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Création en cours..." : "S'inscrire"}

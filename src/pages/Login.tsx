@@ -54,8 +54,11 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Logo en haut à gauche */}
-      <Link to="/" className="absolute top-6 left-6 text-2xl font-bold tracking-tight">arjan</Link>
+      {/* Logo en haut à gauche avec espace pour image */}
+      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
+        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+        <span className="text-2xl font-bold tracking-tight">arjan</span>
+      </Link>
       
       {/* Section formulaire (gauche) */}
       <div className="flex-1 flex items-center justify-center p-4">

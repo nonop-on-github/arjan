@@ -19,8 +19,13 @@ const UserMenu = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
+    try {
+      await signOut();
+      // Force navigation to login after signout
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const handleEditProfile = () => {
