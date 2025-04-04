@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import {
 const Profile = () => {
   const { user, userProfile, updateEmail, updatePassword, refreshProfile, signOut } = useAuthContext();
   const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -35,6 +37,7 @@ const Profile = () => {
   useEffect(() => {
     if (userProfile) {
       setFirstName(userProfile.firstName || '');
+      setLastName(userProfile.lastName || '');
     }
     
     if (user) {
@@ -59,7 +62,10 @@ const Profile = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ first_name: firstName })
+        .update({ 
+          first_name: firstName,
+          last_name: lastName
+        })
         .eq('id', user?.id);
         
       if (error) throw error;
@@ -235,14 +241,25 @@ const Profile = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUpdateProfile} className="space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="firstName" className="text-sm font-medium">Prénom</label>
-                    <Input 
-                      id="firstName" 
-                      value={firstName} 
-                      onChange={(e) => setFirstName(e.target.value)}
-                      disabled={isLoading}
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="firstName" className="text-sm font-medium">Prénom</label>
+                      <Input 
+                        id="firstName" 
+                        value={firstName} 
+                        onChange={(e) => setFirstName(e.target.value)}
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="lastName" className="text-sm font-medium">Nom</label>
+                      <Input 
+                        id="lastName" 
+                        value={lastName} 
+                        onChange={(e) => setLastName(e.target.value)}
+                        disabled={isLoading}
+                      />
+                    </div>
                   </div>
                   <Button type="submit" disabled={isLoading}>
                     {isLoading ? "Mise à jour..." : "Enregistrer les modifications"}

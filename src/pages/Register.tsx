@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 
 const Register = () => {
   const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -51,7 +52,7 @@ const Register = () => {
     if (!firstName || !email || !password) {
       toast({
         title: "Erreur",
-        description: "Veuillez remplir tous les champs",
+        description: "Veuillez remplir tous les champs obligatoires",
         variant: "destructive",
       });
       return;
@@ -69,7 +70,7 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signUp(email, password, { firstName });
+      const { error } = await signUp(email, password, { firstName, lastName });
       
       if (error) throw error;
       
@@ -107,19 +108,33 @@ const Register = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="firstName" className="text-sm font-medium">Prénom</label>
-                <Input 
-                  id="firstName" 
-                  type="text" 
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Votre prénom"
-                  disabled={isLoading}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="firstName" className="text-sm font-medium">Prénom *</label>
+                  <Input 
+                    id="firstName" 
+                    type="text" 
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Votre prénom"
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="lastName" className="text-sm font-medium">Nom</label>
+                  <Input 
+                    id="lastName" 
+                    type="text" 
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Votre nom"
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">Email</label>
+                <label htmlFor="email" className="text-sm font-medium">Email *</label>
                 <Input 
                   id="email" 
                   type="email" 
@@ -127,16 +142,18 @@ const Register = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nom@example.com"
                   disabled={isLoading}
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">Mot de passe</label>
+                <label htmlFor="password" className="text-sm font-medium">Mot de passe *</label>
                 <Input 
                   id="password" 
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  required
                 />
                 {password && (
                   <div className="mt-1 space-y-1">

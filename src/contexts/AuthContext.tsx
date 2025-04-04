@@ -10,7 +10,7 @@ type AuthContextType = {
     error: AuthError | null;
     data: { session: Session | null; user: User | null } | null;
   }>;
-  signUp: (email: string, password: string, metadata?: { firstName: string }) => Promise<{
+  signUp: (email: string, password: string, metadata?: { firstName: string, lastName: string }) => Promise<{
     error: AuthError | null;
     data: { session: Session | null; user: User | null } | null;
   }>;
@@ -18,7 +18,7 @@ type AuthContextType = {
   loading: boolean;
   updatePassword: (newPassword: string) => Promise<{ error: AuthError | null }>;
   updateEmail: (newEmail: string) => Promise<{ error: AuthError | null }>;
-  userProfile: { firstName: string } | null;
+  userProfile: { firstName: string, lastName: string } | null;
   refreshProfile: () => Promise<void>;
 };
 
@@ -28,14 +28,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<{ firstName: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ firstName: string, lastName: string } | null>(null);
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      // Utiliser la nouvelle table profiles au lieu de la table transactions
       const { data, error } = await supabase
         .from('profiles')
-        .select('first_name')
+        .select('first_name, last_name')
         .eq('id', userId)
         .single();
 
@@ -44,8 +43,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Mapper correctement les données du profil
-      setUserProfile(data ? { firstName: data.first_name } : null);
+      setUserProfile(data ? { 
+        firstName: data.first_name,
+        lastName: data.last_name || '' 
+      } : null);
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
     }
@@ -94,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return await supabase.auth.signInWithPassword({ email, password });
   };
 
-  const signUp = async (email: string, password: string, metadata?: { firstName: string }) => {
+  const signUp = async (email: string, password: string, metadata?: { firstName: string, lastName: string }) => {
     return await supabase.auth.signUp({ 
       email, 
       password,

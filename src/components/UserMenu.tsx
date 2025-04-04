@@ -31,10 +31,14 @@ const UserMenu = () => {
     navigate('/profile');
   };
 
-  // Obtenir les initiales du prénom
+  // Obtenir les initiales du prénom et du nom
   const getInitials = () => {
-    if (!userProfile?.firstName) return '?';
-    return userProfile.firstName.charAt(0).toUpperCase();
+    if (!userProfile) return '?';
+    
+    const firstInitial = userProfile.firstName ? userProfile.firstName.charAt(0).toUpperCase() : '';
+    const lastInitial = userProfile.lastName ? userProfile.lastName.charAt(0).toUpperCase() : '';
+    
+    return lastInitial ? `${firstInitial}${lastInitial}` : firstInitial;
   };
 
   return (
@@ -50,7 +54,9 @@ const UserMenu = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>
-          <div className="font-medium">{userProfile?.firstName || 'Utilisateur'}</div>
+          <div className="font-medium">
+            {userProfile?.firstName} {userProfile?.lastName}
+          </div>
           <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
