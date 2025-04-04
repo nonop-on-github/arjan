@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, User } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,6 @@ const UserMenu = () => {
   const handleLogout = async () => {
     try {
       await signOut();
-      // Force navigation to login after signout
       navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout error:', error);

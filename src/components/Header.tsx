@@ -19,7 +19,7 @@ const Header = ({ onNewTransaction }: HeaderProps) => {
   return (
     <header className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+        <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
         <h1 className="text-4xl font-bold tracking-tight">arjan</h1>
       </div>
       <div className="flex items-center gap-4">

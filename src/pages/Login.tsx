@@ -34,17 +34,15 @@ const Login = () => {
       
       if (error) throw error;
       
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur votre espace personnel !",
-      });
-      
-      navigate('/');
-    } catch (error) {
+      // Redirect will be handled by the auth state change in AuthContext
+      navigate('/', { replace: true });
+    } catch (error: any) {
       console.error('Login error:', error);
       toast({
         title: "Erreur de connexion",
-        description: "Email ou mot de passe incorrect",
+        description: error.message === "Invalid login credentials"
+          ? "Identifiants invalides. Veuillez vérifier votre email et mot de passe."
+          : "Impossible de vous connecter. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
@@ -54,9 +52,9 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Logo en haut à gauche avec espace pour image */}
+      {/* Logo en haut à gauche */}
       <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
-        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+        <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
         <span className="text-2xl font-bold tracking-tight">arjan</span>
       </Link>
       
@@ -69,13 +67,13 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">Adresse mail</label>
+                <label htmlFor="email" className="text-sm font-medium">Email</label>
                 <Input 
                   id="email" 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="jaime.l@arjan.com"
+                  placeholder="nom@example.com"
                   disabled={isLoading}
                 />
               </div>
@@ -90,12 +88,12 @@ const Login = () => {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Connexion..." : "Se connecter"}
+                {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-2">
-            <div className="text-sm text-center text-muted-foreground">
+          <CardFooter>
+            <div className="text-sm text-center w-full text-muted-foreground">
               Pas encore de compte ?{" "}
               <Link to="/register" className="text-primary hover:underline">
                 S'inscrire

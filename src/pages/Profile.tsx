@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,15 +8,27 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Profile = () => {
-  const { user, userProfile, updateEmail, updatePassword, refreshProfile } = useAuthContext();
+  const { user, userProfile, updateEmail, updatePassword, refreshProfile, signOut } = useAuthContext();
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -46,7 +57,6 @@ const Profile = () => {
     setIsLoading(true);
     
     try {
-      // Mettre à jour la table profiles au lieu de transactions
       const { error } = await supabase
         .from('profiles')
         .update({ first_name: firstName })
@@ -155,6 +165,44 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    setIsLoading(true);
+    
+    try {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user?.id);
+        
+      if (profileError) throw profileError;
+      
+      const { error: authError } = await supabase.auth.admin.deleteUser(
+        user?.id as string
+      );
+      
+      if (authError) throw authError;
+      
+      await signOut();
+      
+      toast({
+        title: "Compte supprimé",
+        description: "Votre compte a été supprimé avec succès.",
+      });
+      
+      navigate('/login', { replace: true });
+    } catch (error: any) {
+      console.error('Account deletion error:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer votre compte. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      setDeleteConfirmOpen(false);
+    }
+  };
+
   const handleBack = () => {
     navigate('/');
   };
@@ -174,6 +222,7 @@ const Profile = () => {
             <TabsTrigger value="profile">Profil</TabsTrigger>
             <TabsTrigger value="email">Email</TabsTrigger>
             <TabsTrigger value="password">Mot de passe</TabsTrigger>
+            <TabsTrigger value="danger">Zone de danger</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile">
@@ -265,6 +314,40 @@ const Profile = () => {
                     {isLoading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
                   </Button>
                 </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="danger">
+            <Card className="border-red-300">
+              <CardHeader className="text-red-500">
+                <CardTitle>Zone de danger</CardTitle>
+                <CardDescription>
+                  Actions irréversibles. Procédez avec précaution.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" disabled={isLoading}>
+                      Supprimer mon compte
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Êtes-vous vraiment sûr ?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Cette action est irréversible. Toutes vos données personnelles et transactions seront supprimées définitivement.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-500 hover:bg-red-600">
+                        {isLoading ? "Suppression..." : "Oui, supprimer mon compte"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardContent>
             </Card>
           </TabsContent>

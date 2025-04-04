@@ -95,7 +95,7 @@ const Register = () => {
     <div className="flex min-h-screen bg-background">
       {/* Logo en haut à gauche avec espace pour image */}
       <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
-        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+        <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
         <span className="text-2xl font-bold tracking-tight">arjan</span>
       </Link>
       
