@@ -1,13 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { Transaction } from "@/types/finance";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { Database } from "@/integrations/supabase/types";
-
-// Type for database transactions
-type DbTransaction = Database['public']['Tables']['transactions']['Row'];
+import { 
+  fetchUserTransactions, 
+  addUserTransaction, 
+  updateUserTransaction, 
+  deleteUserTransaction,
+  formatDbTransaction
+} from "@/services/transactionService";
 
 export const useTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -23,31 +25,8 @@ export const useTransactions = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false }) as { 
-          data: DbTransaction[] | null; 
-          error: Error | null 
-        };
-
-      if (error) throw error;
-
-      const formattedTransactions: Transaction[] = data ? data.map(t => ({
-        id: t.id,
-        amount: Number(t.amount),
-        type: t.type,
-        date: new Date(t.date),
-        description: t.description,
-        category: t.category,
-        channelId: t.channel_id || "default-card", // Valeur par défaut pour la compatibilité
-        isRecurring: t.is_recurring ?? false,
-        frequency: t.frequency || undefined,
-        nextDate: t.next_date ? new Date(t.next_date) : undefined,
-        endDate: t.end_date ? new Date(t.end_date) : undefined,
-      })) : [];
-
+      const data = await fetchUserTransactions(user.id);
+      const formattedTransactions = data.map(formatDbTransaction);
       setTransactions(formattedTransactions);
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -72,54 +51,18 @@ export const useTransactions = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user.id,
-          amount: transaction.amount,
-          type: transaction.type,
-          date: transaction.date.toISOString().split('T')[0],
-          description: transaction.description,
-          category: transaction.category,
-          channel_id: transaction.channelId,
-          is_recurring: transaction.isRecurring,
-          frequency: transaction.frequency,
-          next_date: transaction.nextDate?.toISOString().split('T')[0],
-          end_date: transaction.endDate?.toISOString().split('T')[0],
-        })
-        .select()
-        .single() as {
-          data: DbTransaction | null;
-          error: Error | null;
-        };
+      const data = await addUserTransaction(transaction, user.id);
+      const newTransaction = formatDbTransaction(data);
 
-      if (error) throw error;
-
-      if (data) {
-        const newTransaction: Transaction = {
-          id: data.id,
-          amount: Number(data.amount),
-          type: data.type,
-          date: new Date(data.date),
-          description: data.description,
-          category: data.category,
-          channelId: data.channel_id || "default-card",
-          isRecurring: data.is_recurring ?? false,
-          frequency: data.frequency || undefined,
-          nextDate: data.next_date ? new Date(data.next_date) : undefined,
-          endDate: data.end_date ? new Date(data.end_date) : undefined,
-        };
-
-        setTransactions(prev => 
-          [...prev, newTransaction].sort((a, b) => b.date.getTime() - a.date.getTime())
-        );
-        toast({
-          title: "Succès",
-          description: "Transaction ajoutée",
-        });
-        return true;
-      }
-      return false;
+      setTransactions(prev => 
+        [...prev, newTransaction].sort((a, b) => b.date.getTime() - a.date.getTime())
+      );
+      
+      toast({
+        title: "Succès",
+        description: "Transaction ajoutée",
+      });
+      return true;
     } catch (error) {
       console.error('Error adding transaction:', error);
       toast({
@@ -142,30 +85,14 @@ export const useTransactions = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('transactions')
-        .update({
-          amount: updatedTransaction.amount,
-          type: updatedTransaction.type,
-          date: updatedTransaction.date.toISOString().split('T')[0],
-          description: updatedTransaction.description,
-          category: updatedTransaction.category,
-          channel_id: updatedTransaction.channelId,
-          is_recurring: updatedTransaction.isRecurring,
-          frequency: updatedTransaction.frequency,
-          next_date: updatedTransaction.nextDate?.toISOString().split('T')[0],
-          end_date: updatedTransaction.endDate?.toISOString().split('T')[0],
-        })
-        .eq('id', updatedTransaction.id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
+      await updateUserTransaction(updatedTransaction, user.id);
+      
       setTransactions(prev =>
         prev
           .map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t))
           .sort((a, b) => b.date.getTime() - a.date.getTime())
       );
+      
       toast({
         title: "Succès",
         description: "Transaction mise à jour",
@@ -193,15 +120,10 @@ export const useTransactions = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('transactions')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
+      await deleteUserTransaction(id, user.id);
+      
       setTransactions(prev => prev.filter((t) => t.id !== id));
+      
       toast({
         title: "Succès",
         description: "Transaction supprimée",
