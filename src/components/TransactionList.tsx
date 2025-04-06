@@ -65,6 +65,15 @@ const TransactionList = ({ transactions, onEdit, onDelete }: TransactionListProp
       return 0;
     });
 
+  // Format la date au format jour/mois/année
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -140,7 +149,7 @@ const TransactionList = ({ transactions, onEdit, onDelete }: TransactionListProp
           <TableBody>
             {filteredTransactions.map((transaction) => (
               <TableRow key={transaction.id}>
-                <TableCell>{new Date(transaction.date).toLocaleDateString("fr-FR")}</TableCell>
+                <TableCell>{formatDate(transaction.date)}</TableCell>
                 <TableCell className="flex items-center gap-2">
                   {transaction.isRecurring && (
                     <CalendarClock className="h-4 w-4 text-muted-foreground" />

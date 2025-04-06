@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LogOut, User } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -31,14 +31,11 @@ const UserMenu = () => {
     navigate('/profile');
   };
 
-  // Obtenir les initiales du prénom et du nom
-  const getInitials = () => {
-    if (!userProfile) return '?';
-    
-    const firstInitial = userProfile.firstName ? userProfile.firstName.charAt(0).toUpperCase() : '';
-    const lastInitial = userProfile.lastName ? userProfile.lastName.charAt(0).toUpperCase() : '';
-    
-    return lastInitial ? `${firstInitial}${lastInitial}` : firstInitial;
+  const displayName = () => {
+    if (!userProfile) return 'Utilisateur';
+    return userProfile.firstName && userProfile.lastName
+      ? `${userProfile.firstName} ${userProfile.lastName}`
+      : userProfile.firstName || 'Utilisateur';
   };
 
   return (
@@ -47,7 +44,7 @@ const UserMenu = () => {
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar>
             <AvatarFallback className="bg-primary text-primary-foreground">
-              {getInitials()}
+              <User size={20} />
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -55,7 +52,7 @@ const UserMenu = () => {
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>
           <div className="font-medium">
-            {userProfile?.firstName} {userProfile?.lastName}
+            {displayName()}
           </div>
           <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
         </DropdownMenuLabel>

@@ -49,9 +49,29 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation: vérifie si le montant est valide
+    const amount = parseFloat(formData.amount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Veuillez entrer un montant valide.");
+      return;
+    }
+    
+    // Validation: vérifie si la description est remplie
+    if (!formData.description.trim()) {
+      alert("Veuillez ajouter une description.");
+      return;
+    }
+    
+    // Validation: vérifie si un canal est sélectionné
+    if (!formData.channelId) {
+      alert("Veuillez sélectionner un canal.");
+      return;
+    }
+    
     const newTransaction: Transaction = {
       id: transaction?.id || Date.now().toString(),
-      amount: parseFloat(formData.amount),
+      amount: amount,
       type: formData.type,
       date: new Date(formData.date),
       description: formData.description,
@@ -72,6 +92,16 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
 
   const updateFormData = (key: string, value: any) => {
     setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Format la date pour l'affichage au format JJ/MM/AAAA
+  const formatDateForDisplay = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
   };
 
   return (
@@ -102,7 +132,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">Date (MM/JJ/AAAA)</Label>
+            <Label htmlFor="date">Date (JJ/MM/AAAA)</Label>
             <Input
               id="date"
               type="date"
@@ -111,6 +141,11 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
               value={formData.date}
               onChange={(e) => updateFormData("date", e.target.value)}
             />
+            {formData.date && (
+              <p className="text-sm text-muted-foreground">
+                Date: {formatDateForDisplay(formData.date)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

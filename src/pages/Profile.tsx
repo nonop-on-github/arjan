@@ -31,6 +31,7 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -76,6 +77,14 @@ const Profile = () => {
         title: "Profil mis à jour",
         description: "Votre profil a été mis à jour avec succès.",
       });
+      
+      setUpdateSuccess(true);
+      
+      // Rediriger vers la page d'accueil après mise à jour réussie
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+      
     } catch (error: any) {
       console.error('Profile update error:', error);
       toast({
@@ -261,6 +270,9 @@ const Profile = () => {
                       />
                     </div>
                   </div>
+                  {updateSuccess && (
+                    <p className="text-sm text-green-600">Profil mis à jour avec succès ! Redirection...</p>
+                  )}
                   <Button type="submit" disabled={isLoading}>
                     {isLoading ? "Mise à jour..." : "Enregistrer les modifications"}
                   </Button>
