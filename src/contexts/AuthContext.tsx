@@ -43,10 +43,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      setUserProfile(data ? { 
-        firstName: data.first_name,
-        lastName: data.last_name || '' 
-      } : null);
+      if (data) {
+        setUserProfile({ 
+          firstName: data.first_name || '',
+          lastName: data.last_name || '' 
+        });
+      } else {
+        setUserProfile(null);
+      }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
     }
