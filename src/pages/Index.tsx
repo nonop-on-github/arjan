@@ -9,8 +9,10 @@ import Header from "@/components/Header";
 import IncomeConfetti from "@/components/IncomeConfetti";
 import { useTheme } from "next-themes";
 import { useTransactions } from "@/hooks/useTransactions";
-import { PlusCircle } from "lucide-react";
+import { useChannels } from "@/hooks/useChannels";
+import { PlusCircle, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ChannelManagement from "@/components/ChannelManagement";
 
 const Index = () => {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
@@ -18,8 +20,10 @@ const Index = () => {
   const [mounted, setMounted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
+  const [showChannelManager, setShowChannelManager] = useState(false);
   const { setTheme, theme } = useTheme();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
+  const { channels, setChannels, isLoading: channelsLoading } = useChannels();
   const pageRef = useRef<HTMLDivElement>(null);
 
   // Utilisé pour éviter l'hydration mismatch avec next-themes
@@ -79,9 +83,21 @@ const Index = () => {
     <div className="min-h-screen bg-background p-6 animate-fadeIn" ref={pageRef}>
       <div className="max-w-7xl mx-auto space-y-8">
         <Header onNewTransaction={() => setShowTransactionForm(true)} />
+        
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Tableau de bord</h2>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowChannelManager(true)}
+            className="flex items-center gap-2"
+          >
+            <Wallet className="h-4 w-4" />
+            Gérer mes canaux
+          </Button>
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Dashboard transactions={transactions} />
+          <Dashboard transactions={transactions} channels={channels} />
         </div>
 
         <Card className="p-6">
@@ -100,6 +116,16 @@ const Index = () => {
               setShowTransactionForm(false);
               setEditingTransaction(null);
             }}
+            channels={channels}
+          />
+        )}
+        
+        {showChannelManager && (
+          <ChannelManagement
+            open={showChannelManager}
+            onClose={() => setShowChannelManager(false)}
+            channels={channels}
+            onChannelsUpdate={setChannels}
           />
         )}
         

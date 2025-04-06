@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Transaction, TransactionType, TransactionFrequency } from "@/types/finance";
+import { Transaction, TransactionType, TransactionFrequency, Channel } from "@/types/finance";
 import {
   Select,
   SelectContent,
@@ -29,15 +29,17 @@ interface TransactionFormProps {
   transaction?: Transaction | null;
   onSubmit: (transaction: Transaction) => void;
   onClose: () => void;
+  channels: Channel[];
 }
 
-const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProps) => {
+const TransactionForm = ({ transaction, onSubmit, onClose, channels }: TransactionFormProps) => {
   const [formData, setFormData] = useState({
     amount: "",
     type: "expense" as TransactionType,
     date: new Date().toISOString().split("T")[0],
     description: "",
     category: categories[0],
+    channelId: channels.length > 0 ? channels[0].id : "",
     isRecurring: false,
     frequency: "monthly" as TransactionFrequency,
   });
@@ -50,11 +52,15 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
         date: new Date(transaction.date).toISOString().split("T")[0],
         description: transaction.description,
         category: transaction.category,
+        channelId: transaction.channelId,
         isRecurring: transaction.isRecurring,
         frequency: transaction.frequency || "monthly",
       });
+    } else if (channels.length > 0) {
+      // Si pas de transaction mais des canaux disponibles, sélectionner le premier
+      setFormData(prev => ({ ...prev, channelId: channels[0].id }));
     }
-  }, [transaction]);
+  }, [transaction, channels]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +71,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
       date: new Date(formData.date),
       description: formData.description,
       category: formData.category,
+      channelId: formData.channelId,
       isRecurring: formData.isRecurring,
       frequency: formData.isRecurring ? formData.frequency : undefined,
     };
@@ -144,6 +151,32 @@ const TransactionForm = ({ transaction, onSubmit, onClose }: TransactionFormProp
                 setFormData({ ...formData, description: e.target.value })
               }
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Canal</Label>
+            <Select
+              value={formData.channelId}
+              onValueChange={(value) =>
+                setFormData({ ...formData, channelId: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue>
+                  {channels.find(c => c.id === formData.channelId)?.name || "Sélectionner un canal"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {channels.map((channel) => (
+                  <SelectItem key={channel.id} value={channel.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{channel.icon}</span>
+                      <span>{channel.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

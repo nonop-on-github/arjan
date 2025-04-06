@@ -1,8 +1,8 @@
 
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { Transaction, DashboardStats, CategoryTotal } from "@/types/finance";
-import { Euro, TrendingUp, TrendingDown, CalendarClock } from "lucide-react";
+import { Transaction, DashboardStats, CategoryTotal, Channel } from "@/types/finance";
+import { Euro, TrendingUp, TrendingDown } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -15,28 +15,50 @@ import {
 
 interface DashboardProps {
   transactions: Transaction[];
+  channels: Channel[];
 }
 
-const Dashboard = ({ transactions }: DashboardProps) => {
+const Dashboard = ({ transactions, channels }: DashboardProps) => {
   const stats: DashboardStats = useMemo(() => {
+    const channelBalances: Record<string, number> = {};
+    
+    // Initialiser tous les canaux à 0
+    channels.forEach(channel => {
+      channelBalances[channel.id] = 0;
+    });
+    
     return transactions.reduce(
       (acc, transaction) => {
         const amount = transaction.amount;
+        
         if (transaction.type === "income") {
           acc.totalIncome += amount;
+          // Ajouter au solde du canal
+          acc.channelBalances[transaction.channelId] = 
+            (acc.channelBalances[transaction.channelId] || 0) + amount;
         } else {
           acc.totalExpenses += amount;
+          // Soustraire du solde du canal
+          acc.channelBalances[transaction.channelId] = 
+            (acc.channelBalances[transaction.channelId] || 0) - amount;
         }
+        
         if (transaction.isRecurring) {
           acc.recurring += 1;
         }
-        acc.currentBalance =
-          acc.totalIncome - acc.totalExpenses;
+        
+        acc.currentBalance = acc.totalIncome - acc.totalExpenses;
         return acc;
       },
-      { currentBalance: 0, totalIncome: 0, totalExpenses: 0, recurring: 0 }
+      { 
+        currentBalance: 0, 
+        totalIncome: 0, 
+        totalExpenses: 0, 
+        recurring: 0,
+        channelBalances
+      }
     );
-  }, [transactions]);
+  }, [transactions, channels]);
 
   const categoryTotals: CategoryTotal[] = useMemo(() => {
     const totals = transactions.reduce((acc, transaction) => {
@@ -100,6 +122,25 @@ const Dashboard = ({ transactions }: DashboardProps) => {
           </div>
         </div>
       </Card>
+
+      {/* Canaux d'argent */}
+      {channels.map((channel, index) => (
+        <Card key={channel.id} className={`p-6 animate-slideIn [animation-delay:${300 + index * 100}ms]`}>
+          <div className="flex items-center gap-4">
+            <div className="p-4 rounded-full bg-blue-50">
+              <span className="text-xl">{channel.icon}</span>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                {channel.name}
+              </p>
+              <h2 className={`text-2xl font-bold ${stats.channelBalances[channel.id] >= 0 ? 'text-income' : 'text-expense'}`}>
+                {stats.channelBalances[channel.id]?.toLocaleString("fr-FR")}€
+              </h2>
+            </div>
+          </div>
+        </Card>
+      ))}
 
       <Card className="col-span-full p-6 animate-slideIn [animation-delay:300ms]">
         <h3 className="text-lg font-semibold mb-4">Dépenses par catégorie</h3>

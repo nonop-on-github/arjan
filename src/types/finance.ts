@@ -3,6 +3,13 @@ export type TransactionType = "income" | "expense";
 
 export type TransactionFrequency = "once" | "monthly" | "yearly";
 
+export interface Channel {
+  id: string;
+  name: string;
+  icon: string;
+  color?: string;
+}
+
 export interface Transaction {
   id: string;
   amount: number;
@@ -10,6 +17,7 @@ export interface Transaction {
   date: Date;
   description: string;
   category: string;
+  channelId: string;
   isRecurring: boolean;
   frequency?: TransactionFrequency;
   nextDate?: Date;
@@ -21,6 +29,7 @@ export interface DashboardStats {
   totalIncome: number;
   totalExpenses: number;
   recurring: number;
+  channelBalances: Record<string, number>;
 }
 
 export interface CategoryTotal {
