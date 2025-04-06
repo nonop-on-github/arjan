@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,34 +37,36 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     }
 
     try {
-      const channelId = crypto.randomUUID();
-      const channel: Channel = {
-        id: channelId,
-        name: newChannel.name,
-        icon: newChannel.icon || "💳",
-        color: newChannel.color,
-      };
-      
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('channels')
         .insert({
-          id: channel.id,
-          name: channel.name,
-          icon: channel.icon,
-          color: channel.color,
+          name: newChannel.name,
+          icon: newChannel.icon || "💳",
+          color: newChannel.color,
           user_id: user.id
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
       
-      const updatedChannels = [...channels, channel];
-      onChannelsUpdate(updatedChannels);
-      setNewChannel({ name: "", icon: DEFAULT_ICONS[0] });
-      
-      toast({
-        title: "Succès",
-        description: "Canal ajouté",
-      });
+      if (data) {
+        const channel: Channel = {
+          id: data.id,
+          name: data.name,
+          icon: data.icon,
+          color: data.color || undefined,
+        };
+        
+        const updatedChannels = [...channels, channel];
+        onChannelsUpdate(updatedChannels);
+        setNewChannel({ name: "", icon: DEFAULT_ICONS[0] });
+        
+        toast({
+          title: "Succès",
+          description: "Canal ajouté",
+        });
+      }
     } catch (error) {
       console.error('Error adding channel:', error);
       toast({

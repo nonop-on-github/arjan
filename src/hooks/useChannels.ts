@@ -4,6 +4,7 @@ import { Channel } from "@/types/finance";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { DbChannel } from "@/types/supabaseTypes";
 
 const DEFAULT_CHANNELS: Channel[] = [
   { id: "default-cash", name: "Espèces", icon: "💰" },
@@ -32,7 +33,7 @@ export const useChannels = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        const formattedChannels: Channel[] = data.map(c => ({
+        const formattedChannels: Channel[] = (data as DbChannel[]).map(c => ({
           id: c.id,
           name: c.name,
           icon: c.icon,
@@ -42,7 +43,8 @@ export const useChannels = () => {
       } else {
         // Si l'utilisateur n'a pas encore de canaux, créons les canaux par défaut
         const defaultChannelsWithUserId = DEFAULT_CHANNELS.map(channel => ({
-          ...channel,
+          name: channel.name,
+          icon: channel.icon,
           user_id: user.id
         }));
 
@@ -52,7 +54,23 @@ export const useChannels = () => {
 
         if (insertError) throw insertError;
 
-        setChannels(DEFAULT_CHANNELS);
+        // Récupérer les canaux fraîchement créés
+        const { data: newChannels } = await supabase
+          .from('channels')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (newChannels && newChannels.length > 0) {
+          const formattedNewChannels: Channel[] = (newChannels as DbChannel[]).map(c => ({
+            id: c.id,
+            name: c.name,
+            icon: c.icon,
+            color: c.color || undefined,
+          }));
+          setChannels(formattedNewChannels);
+        } else {
+          setChannels(DEFAULT_CHANNELS);
+        }
       }
     } catch (error) {
       console.error('Error fetching channels:', error);

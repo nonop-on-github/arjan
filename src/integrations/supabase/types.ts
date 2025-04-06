@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      channels: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -34,6 +61,7 @@ export type Database = {
         Row: {
           amount: number
           category: string
+          channel_id: string | null
           created_at: string | null
           date: string
           description: string
@@ -48,6 +76,7 @@ export type Database = {
         Insert: {
           amount: number
           category: string
+          channel_id?: string | null
           created_at?: string | null
           date: string
           description: string
@@ -64,6 +93,7 @@ export type Database = {
         Update: {
           amount?: number
           category?: string
+          channel_id?: string | null
           created_at?: string | null
           date?: string
           description?: string
@@ -77,7 +107,15 @@ export type Database = {
           type?: Database["public"]["Enums"]["transaction_type"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
