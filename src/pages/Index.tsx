@@ -80,27 +80,28 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6 animate-fadeIn" ref={pageRef}>
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background p-3 sm:p-6 animate-fadeIn" ref={pageRef}>
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         <Header onNewTransaction={() => setShowTransactionForm(true)} />
         
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Tableau de bord</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+          <h2 className="text-xl sm:text-2xl font-bold">Tableau de bord</h2>
           <Button 
             variant="outline" 
             onClick={() => setShowChannelManager(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
+            size="sm"
           >
             <Wallet className="h-4 w-4" />
-            Gérer mes canaux
+            <span className="whitespace-nowrap">Gérer mes canaux</span>
           </Button>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Dashboard transactions={transactions} channels={channels} />
         </div>
 
-        <Card className="p-6">
+        <Card className="p-3 sm:p-6">
           <TransactionList
             transactions={transactions}
             onEdit={setEditingTransaction}
@@ -138,9 +139,9 @@ const Index = () => {
         {showFloatingButton && (
           <Button
             onClick={() => setShowTransactionForm(true)}
-            className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg bg-black text-white p-0 flex items-center justify-center transition-all duration-300 animate-scale-in hover:scale-110"
+            className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-lg bg-black dark:bg-primary text-white p-0 flex items-center justify-center transition-all duration-300 animate-scale-in hover:scale-110 z-20"
           >
-            <PlusCircle size={48} />
+            <PlusCircle size={36} />
           </Button>
         )}
       </div>
