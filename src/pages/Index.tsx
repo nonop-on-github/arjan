@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Transaction } from "@/types/finance";
 import { Card } from "@/components/ui/card";
@@ -127,14 +128,14 @@ const Index = () => {
           onComplete={() => setShowConfetti(false)} 
         />
         
-        {showFloatingButton && (
+        {showFloatingButton ? (
           <Button
             onClick={() => setShowTransactionForm(true)}
             className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-lg bg-black dark:bg-primary text-white p-0 flex items-center justify-center transition-all duration-300 animate-scale-in hover:scale-110 z-20"
           >
-            <PlusCircle size={42} />
+            <PlusCircle size={54} />
           </Button>
-        )}
+        ) : null}
       </div>
     </div>
   );
