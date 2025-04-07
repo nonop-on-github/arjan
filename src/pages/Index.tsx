@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Transaction } from "@/types/finance";
 import { Card } from "@/components/ui/card";
@@ -26,12 +25,10 @@ const Index = () => {
   const { channels, setChannels, isLoading: channelsLoading } = useChannels();
   const pageRef = useRef<HTMLDivElement>(null);
 
-  // Utilisé pour éviter l'hydration mismatch avec next-themes
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Effet pour synchroniser avec le thème système
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -39,16 +36,12 @@ const Index = () => {
         setTheme(e.matches ? 'dark' : 'light');
       };
       
-      // Initial setup
       setTheme(mediaQuery.matches ? 'dark' : 'light');
-      
-      // Listen for changes
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
   }, [setTheme]);
 
-  // Gérer l'affichage du bouton flottant lors du défilement
   useEffect(() => {
     const handleScroll = () => {
       if (!pageRef.current) return;
@@ -65,7 +58,6 @@ const Index = () => {
       : await addTransaction(transaction);
     
     if (success) {
-      // Montrer les confettis uniquement pour les nouveaux revenus
       if (!editingTransaction && transaction.type === "income") {
         setShowConfetti(true);
       }
@@ -135,13 +127,12 @@ const Index = () => {
           onComplete={() => setShowConfetti(false)} 
         />
         
-        {/* Bouton flottant pour nouvelle transaction avec animation */}
         {showFloatingButton && (
           <Button
             onClick={() => setShowTransactionForm(true)}
             className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 h-14 w-14 sm:h-16 sm:w-16 rounded-full shadow-lg bg-black dark:bg-primary text-white p-0 flex items-center justify-center transition-all duration-300 animate-scale-in hover:scale-110 z-20"
           >
-            <PlusCircle size={36} />
+            <PlusCircle size={42} />
           </Button>
         )}
       </div>
