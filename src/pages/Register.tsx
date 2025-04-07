@@ -34,7 +34,8 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signUp(email, password, firstName, lastName);
+      // Fix here: pass firstName and lastName as metadata object instead of separate parameters
+      const { error } = await signUp(email, password, { firstName, lastName });
       
       if (error) throw error;
       
