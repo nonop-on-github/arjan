@@ -31,9 +31,10 @@ const IncomeConfetti = ({ show, onComplete }: IncomeConfettiProps) => {
         width={width}
         height={height}
         recycle={false}
-        numberOfPieces={500}
+        numberOfPieces={200}
         gravity={0.2}
         colors={["#22c55e", "#4ade80", "#86efac", "#bbf7d0"]}
+        tweenDuration={5000}
       />
     </div>
   );

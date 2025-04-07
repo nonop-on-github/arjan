@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<{ firstName: string, lastName: string } | null>(null);
+  const [refreshInterval, setRefreshInterval] = useState<number | null>(null);
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -61,38 +62,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await fetchUserProfile(user.id);
     }
   };
+  
+  // Set up token refresh
+  const setupRefreshToken = () => {
+    if (refreshInterval) clearInterval(refreshInterval);
+    
+    // Refresh session every 10 minutes
+    const interval = window.setInterval(async () => {
+      try {
+        const { error } = await supabase.auth.refreshSession();
+        if (error) {
+          console.error("Failed to refresh session:", error);
+        }
+      } catch (err) {
+        console.error("Error refreshing session:", err);
+      }
+    }, 10 * 60 * 1000); // 10 minutes
+    
+    setRefreshInterval(interval);
+  };
 
   useEffect(() => {
     const setupAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchUserProfile(session.user.id);
-      }
-      
-      setLoading(false);
-
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (_event, session) => {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchUserProfile(session.user.id);
-          } else {
-            setUserProfile(null);
-          }
-          
-          setLoading(false);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchUserProfile(session.user.id);
         }
-      );
+        
+        setLoading(false);
 
-      return () => subscription.unsubscribe();
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (_event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            
+            if (session?.user) {
+              await fetchUserProfile(session.user.id);
+              setupRefreshToken();
+            } else {
+              setUserProfile(null);
+              if (refreshInterval) clearInterval(refreshInterval);
+            }
+            
+            setLoading(false);
+          }
+        );
+
+        // Setup refresh token if we already have a session
+        if (session) {
+          setupRefreshToken();
+        }
+
+        return () => {
+          subscription.unsubscribe();
+          if (refreshInterval) clearInterval(refreshInterval);
+        };
+      } catch (error) {
+        console.error("Error setting up auth:", error);
+        setLoading(false);
+      }
     };
 
     setupAuth();
+    
+    return () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -110,6 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    if (refreshInterval) clearInterval(refreshInterval);
     await supabase.auth.signOut();
     setUserProfile(null);
   };
