@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect } from "react";
 
 interface ChannelManagementProps {
@@ -20,7 +21,7 @@ interface ChannelManagementProps {
   onChannelsUpdate: (channels: Channel[]) => void;
 }
 
-const DEFAULT_ICONS = ["💳", "💰", "🏦", "💶", "📱", "🪙"];
+const DEFAULT_ICONS = ["💳", "💰", "🏦", "💶", "📱"];
 const EMOJI_CATEGORIES = {
   "Argent": ["💰", "💸", "💵", "💴", "💶", "💷", "🏦", "🏧", "💳", "💎", "🪙", "💹"],
   "Transport": ["🚗", "🚕", "🚌", "🚎", "🚓", "🚑", "🚒", "🚚", "🚛", "🚜", "🚲", "🛵", "🏍️", "🚄", "✈️", "🚢"],
@@ -50,7 +51,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     if (!user) return;
     if (!newChannel.name) {
       toast({
-        title: "Erreur ❌",
+        title: "Erreur",
         description: "Le nom du canal est obligatoire",
         variant: "destructive",
       });
@@ -84,7 +85,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
         setNewChannel({ name: "", icon: DEFAULT_ICONS[0] });
         
         toast({
-          title: "Succès ✅",
+          title: "Succès",
           description: "Canal ajouté",
         });
         onClose();
@@ -92,7 +93,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     } catch (error) {
       console.error('Error adding channel:', error);
       toast({
-        title: "Erreur ❌",
+        title: "Erreur",
         description: "Impossible d'ajouter le canal",
         variant: "destructive",
       });
@@ -118,21 +119,21 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
       }
 
       const updatedChannels = channels.map((channel) => 
-        channel.id === editingChannel.id ? editingChannel : channel
+        channel.id === editingChannel.id ? {...editingChannel} : channel
       );
       
       onChannelsUpdate(updatedChannels);
       setEditingChannel(null);
       
       toast({
-        title: "Succès ✅",
+        title: "Succès",
         description: "Canal mis à jour",
       });
       onClose();
     } catch (error) {
       console.error('Error updating channel:', error);
       toast({
-        title: "Erreur ❌",
+        title: "Erreur",
         description: "Impossible de mettre à jour le canal",
         variant: "destructive",
       });
@@ -155,13 +156,13 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
       onChannelsUpdate(updatedChannels);
       
       toast({
-        title: "Succès ✅",
+        title: "Succès",
         description: "Canal supprimé",
       });
     } catch (error) {
       console.error('Error deleting channel:', error);
       toast({
-        title: "Erreur ❌",
+        title: "Erreur",
         description: "Impossible de supprimer le canal",
         variant: "destructive",
       });
@@ -179,7 +180,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
 
   const EmojiPicker = () => {
     return (
-      <div className="h-60 overflow-y-auto">
+      <ScrollArea className="h-60 w-full overflow-y-auto pr-4">
         <div className="space-y-4">
           {Object.entries(EMOJI_CATEGORIES).map(([category, emojis]) => (
             <div key={category}>
@@ -198,7 +199,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
             </div>
           ))}
         </div>
-      </div>
+      </ScrollArea>
     );
   };
 
