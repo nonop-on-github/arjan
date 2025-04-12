@@ -81,6 +81,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     if (!user || !editingChannel) return;
     
     try {
+      // Correction majeure ici : Assurons-nous d'identifier correctement le canal à mettre à jour
       const { error } = await supabase
         .from('channels')
         .update({
@@ -88,13 +89,16 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
           icon: editingChannel.icon,
           color: editingChannel.color,
         })
-        .eq('id', editingChannel.id)
-        .eq('user_id', user.id);
+        .eq('id', editingChannel.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
 
-      const updatedChannels = channels.map((c) => 
-        c.id === editingChannel.id ? editingChannel : c
+      // Mise à jour de l'état local avec le canal édité
+      const updatedChannels = channels.map((channel) => 
+        channel.id === editingChannel.id ? editingChannel : channel
       );
       
       onChannelsUpdate(updatedChannels);
@@ -170,7 +174,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => setEditingChannel(channel)}
+                      onClick={() => setEditingChannel({...channel})}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
