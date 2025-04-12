@@ -9,6 +9,9 @@ import { X, Edit, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { useEffect } from "react";
 
 interface ChannelManagementProps {
   open: boolean;
@@ -17,19 +20,37 @@ interface ChannelManagementProps {
   onChannelsUpdate: (channels: Channel[]) => void;
 }
 
-const DEFAULT_ICONS = ["💳", "💰", "🏦", "💶", "📱", "🪙", "💎"];
+const DEFAULT_ICONS = ["💳", "💰", "🏦", "💶", "📱", "🪙"];
+const EMOJI_CATEGORIES = {
+  "Argent": ["💰", "💸", "💵", "💴", "💶", "💷", "🏦", "🏧", "💳", "💎", "🪙", "💹"],
+  "Transport": ["🚗", "🚕", "🚌", "🚎", "🚓", "🚑", "🚒", "🚚", "🚛", "🚜", "🚲", "🛵", "🏍️", "🚄", "✈️", "🚢"],
+  "Nourriture": ["🍕", "🍔", "🍟", "🌭", "🍿", "🧂", "🥓", "🥚", "🍳", "🧇", "🥞", "🧈", "🍞", "🥖", "🥨", "🥯"],
+  "Shopping": ["🛒", "👕", "👖", "👗", "👚", "👛", "👜", "👝", "🎒", "👞", "👟", "👠", "👡", "👢", "👑", "💄"],
+  "Loisirs": ["🎮", "🎯", "🎲", "🧩", "🎭", "🎬", "🎤", "🎧", "🎼", "🎹", "🎷", "🎺", "🎸", "🪕", "🎻", "🎨"],
+  "Maison": ["🏠", "🏡", "🏢", "🏣", "🏤", "🏥", "🏦", "🏨", "🏩", "🏪", "🏫", "🏬", "🏭", "🏯", "🏰", "💒"],
+  "Technologie": ["📱", "💻", "🖥️", "🖨️", "⌨️", "🖱️", "💿", "💾", "📀", "🧮", "📷", "📹", "🎥", "📽️", "📞", "☎️"],
+};
 
 export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }: ChannelManagementProps) => {
   const [editingChannel, setEditingChannel] = useState<Channel | null>(null);
   const [newChannel, setNewChannel] = useState<Partial<Channel>>({ name: "", icon: DEFAULT_ICONS[0] });
+  const [customEmojiOpen, setCustomEmojiOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { toast } = useToast();
   const { user } = useAuthContext();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleAddChannel = async () => {
     if (!user) return;
     if (!newChannel.name) {
       toast({
-        title: "Erreur",
+        title: "Erreur ❌",
         description: "Le nom du canal est obligatoire",
         variant: "destructive",
       });
@@ -63,14 +84,15 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
         setNewChannel({ name: "", icon: DEFAULT_ICONS[0] });
         
         toast({
-          title: "Succès",
+          title: "Succès ✅",
           description: "Canal ajouté",
         });
+        onClose();
       }
     } catch (error) {
       console.error('Error adding channel:', error);
       toast({
-        title: "Erreur",
+        title: "Erreur ❌",
         description: "Impossible d'ajouter le canal",
         variant: "destructive",
       });
@@ -81,7 +103,6 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     if (!user || !editingChannel) return;
     
     try {
-      // Correction majeure ici : Assurons-nous d'identifier correctement le canal à mettre à jour
       const { error } = await supabase
         .from('channels')
         .update({
@@ -96,7 +117,6 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
         throw error;
       }
 
-      // Mise à jour de l'état local avec le canal édité
       const updatedChannels = channels.map((channel) => 
         channel.id === editingChannel.id ? editingChannel : channel
       );
@@ -105,13 +125,14 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
       setEditingChannel(null);
       
       toast({
-        title: "Succès",
+        title: "Succès ✅",
         description: "Canal mis à jour",
       });
+      onClose();
     } catch (error) {
       console.error('Error updating channel:', error);
       toast({
-        title: "Erreur",
+        title: "Erreur ❌",
         description: "Impossible de mettre à jour le canal",
         variant: "destructive",
       });
@@ -134,17 +155,94 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
       onChannelsUpdate(updatedChannels);
       
       toast({
-        title: "Succès",
+        title: "Succès ✅",
         description: "Canal supprimé",
       });
     } catch (error) {
       console.error('Error deleting channel:', error);
       toast({
-        title: "Erreur",
+        title: "Erreur ❌",
         description: "Impossible de supprimer le canal",
         variant: "destructive",
       });
     }
+  };
+
+  const selectEmoji = (emoji: string) => {
+    if (editingChannel) {
+      setEditingChannel({...editingChannel, icon: emoji});
+    } else {
+      setNewChannel({...newChannel, icon: emoji});
+    }
+    setCustomEmojiOpen(false);
+  };
+
+  const EmojiPicker = () => {
+    return (
+      <div className="h-60 overflow-y-auto">
+        <div className="space-y-4">
+          {Object.entries(EMOJI_CATEGORIES).map(([category, emojis]) => (
+            <div key={category}>
+              <h4 className="text-sm font-medium mb-2">{category}</h4>
+              <div className="flex flex-wrap gap-2">
+                {emojis.map(emoji => (
+                  <button
+                    key={emoji}
+                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-accent rounded"
+                    onClick={() => selectEmoji(emoji)}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderEmojiSelector = () => {
+    if (isMobile) {
+      return (
+        <Drawer open={customEmojiOpen} onOpenChange={setCustomEmojiOpen}>
+          <DrawerTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-lg h-10 w-10"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="px-4 pt-4 pb-6">
+            <div className="mb-4 text-center">
+              <h3 className="text-lg font-medium">Sélection d'emoji</h3>
+            </div>
+            <EmojiPicker />
+          </DrawerContent>
+        </Drawer>
+      );
+    }
+
+    return (
+      <Popover open={customEmojiOpen} onOpenChange={setCustomEmojiOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-lg h-10 w-10"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-2" align="center">
+          <EmojiPicker />
+        </PopoverContent>
+      </Popover>
+    );
   };
 
   return (
@@ -235,6 +333,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
                       {icon}
                     </Button>
                   ))}
+                  {renderEmojiSelector()}
                 </div>
               </div>
               
