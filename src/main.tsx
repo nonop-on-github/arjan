@@ -14,12 +14,26 @@ const LoadingScreen = () => (
 );
 
 // Use lazy loading for App component for improved initial load time
-const App = lazy(() => import('./App.tsx'));
+const App = lazy(() => import('./App'));
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Suspense fallback={<LoadingScreen />}>
-      <App />
-    </Suspense>
-  </StrictMode>
-);
+// Utilisation d'une fonction pour créer la racine React - évite les problèmes potentiels d'initialisation
+const initializeApp = () => {
+  const container = document.getElementById("root");
+  if (!container) return;
+  
+  const root = createRoot(container);
+  root.render(
+    <StrictMode>
+      <Suspense fallback={<LoadingScreen />}>
+        <App />
+      </Suspense>
+    </StrictMode>
+  );
+};
+
+// S'assurer que le DOM est complètement chargé avant d'initialiser l'application
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}

@@ -191,6 +191,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
                     key={emoji}
                     className="w-8 h-8 flex items-center justify-center text-lg hover:bg-accent rounded"
                     onClick={() => selectEmoji(emoji)}
+                    type="button"
                   >
                     {emoji}
                   </button>
