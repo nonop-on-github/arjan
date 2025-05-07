@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Transaction } from "@/types/finance";
 import { Card } from "@/components/ui/card";
@@ -30,6 +29,8 @@ const Index = () => {
     setMounted(true);
   }, []);
 
+  // Supprimer la détection automatique du thème du système
+  
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -37,8 +38,7 @@ const Index = () => {
         setTheme(e.matches ? 'dark' : 'light');
       };
       
-      setTheme(mediaQuery.matches ? 'dark' : 'light');
-      mediaQuery.addEventListener('change', handleChange);
+      mediaQuery.removeEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
   }, [setTheme]);

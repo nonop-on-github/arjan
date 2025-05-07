@@ -97,16 +97,6 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
-  // Format la date pour l'affichage au format JJ/MM/AAAA
-  const formatDateForDisplay = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
-    });
-  };
-
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -128,7 +118,6 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
                 onChange={(e) => updateFormData("amount", e.target.value)}
                 placeholder="0,00"
               />
-              <p className="text-xs text-muted-foreground">Utilisez la virgule ou le point comme séparateur décimal</p>
             </div>
             <TransactionTypeSelect 
               transactionType={formData.type} 
@@ -137,7 +126,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">Date (JJ/MM/AAAA)</Label>
+            <Label htmlFor="date">Date</Label>
             <Input
               id="date"
               type="date"
@@ -146,11 +135,6 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
               value={formData.date}
               onChange={(e) => updateFormData("date", e.target.value)}
             />
-            {formData.date && (
-              <p className="text-sm text-muted-foreground">
-                Date: {formatDateForDisplay(formData.date)}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
