@@ -21,6 +21,9 @@ const initializeApp = () => {
   const container = document.getElementById("root");
   if (!container) return;
   
+  // Ajouter la classe pour les transitions douces
+  document.documentElement.classList.add('theme-transition');
+  
   const root = createRoot(container);
   root.render(
     <StrictMode>

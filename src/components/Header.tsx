@@ -1,49 +1,37 @@
 
-import { useTheme } from "next-themes";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  PlusCircle,
-  User
-} from "lucide-react";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { PlusCircle } from "lucide-react";
 import UserMenu from "./UserMenu";
-import { Separator } from "@/components/ui/separator";
-import { useIsMobile } from "@/hooks/use-mobile";
+import ThemeToggle from "./ThemeToggle";
 
 interface HeaderProps {
-  onNewTransaction: () => void;
+  onNewTransaction?: () => void;
 }
 
 const Header = ({ onNewTransaction }: HeaderProps) => {
-  const { theme, setTheme } = useTheme();
-  const { user } = useAuthContext();
-  const isMobile = useIsMobile();
-
   return (
-    <header className="pb-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">arjan</h1>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-4">
-          {!isMobile && (
-            <Button
-              onClick={onNewTransaction}
-              className="flex items-center gap-2"
-              size={isMobile ? "sm" : "default"}
-            >
-              <PlusCircle className="w-5 h-5" />
-              <span className="hidden sm:inline">Nouvelle transaction</span>
-              <span className="sm:hidden">Ajouter</span>
-            </Button>
-          )}
-          {user && (
-            <UserMenu />
-          )}
-        </div>
+    <header className="flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-center">
+      <Link to="/" className="flex items-center gap-2">
+        <img
+          src="/arjanLogo.png"
+          alt="Arjan Logo"
+          className="w-8 h-8 rounded-md"
+        />
+        <h1 className="text-2xl font-bold">arjan</h1>
+      </Link>
+
+      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <Button
+          onClick={onNewTransaction}
+          className="flex items-center gap-1 w-full sm:w-auto"
+        >
+          <PlusCircle size={18} />
+          <span>Nouvelle transaction</span>
+        </Button>
+        <ThemeToggle />
+        <UserMenu />
       </div>
-      <Separator className="my-2" />
     </header>
   );
 };

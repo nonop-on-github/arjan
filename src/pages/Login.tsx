@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -56,11 +57,14 @@ const Login = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Logo en haut à gauche */}
-      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
-        <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
-        <span className="text-2xl font-bold tracking-tight">arjan</span>
-      </Link>
+      {/* Header avec logo et toggle de thème */}
+      <div className="w-full p-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
+          <span className="text-2xl font-bold tracking-tight">arjan</span>
+        </Link>
+        <ThemeToggle />
+      </div>
       
       <div className="flex flex-1 flex-col md:flex-row">
         {/* Section formulaire (gauche) */}
@@ -122,7 +126,7 @@ const Login = () => {
         </div>
         
         {/* Section verte (droite) */}
-        <div className="md:flex-1 bg-green-500 flex items-center justify-center p-6 md:p-0 order-1 md:order-2 min-h-[30vh] md:min-h-screen">
+        <div className="md:flex-1 bg-green-500 dark:bg-green-700 flex items-center justify-center p-6 md:p-0 order-1 md:order-2 min-h-[30vh] md:min-h-screen">
           <div className="text-white text-center p-4 md:p-8 max-w-lg">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Gérez vos dépenses et revenus facilement. 💸</h2>
             <p className="text-white/80 text-md md:text-lg">Suivez vos finances sur vos différents canaux, et voyez y plus clair dans vos dépenses.</p>

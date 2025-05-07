@@ -50,8 +50,11 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Conversion du montant avec prise en charge de la virgule
+    const normalizedAmount = formData.amount.replace(',', '.');
+    const amount = parseFloat(normalizedAmount);
+    
     // Validation: vérifie si le montant est valide
-    const amount = parseFloat(formData.amount);
     if (isNaN(amount) || amount <= 0) {
       alert("Veuillez entrer un montant valide.");
       return;
@@ -118,12 +121,14 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
               <Label htmlFor="amount">Montant (€)</Label>
               <Input
                 id="amount"
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 required
                 value={formData.amount}
                 onChange={(e) => updateFormData("amount", e.target.value)}
+                placeholder="0,00"
               />
+              <p className="text-xs text-muted-foreground">Utilisez la virgule ou le point comme séparateur décimal</p>
             </div>
             <TransactionTypeSelect 
               transactionType={formData.type} 
