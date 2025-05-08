@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 import { fetchUserBudgets, addUserBudget, updateUserBudget, deleteUserBudget } from '@/services/budgetService';
 import { Budget, BudgetProgress } from '@/types/budget';
 import { Transaction } from '@/types/finance';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 export const useBudgets = (transactions: Transaction[] = []) => {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [budgetProgress, setBudgetProgress] = useState<BudgetProgress[]>([]);
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { toast } = useToast();
 
   // Fetch budgets
