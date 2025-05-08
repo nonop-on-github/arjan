@@ -24,6 +24,12 @@ export interface Transaction {
   endDate?: Date;
 }
 
+export interface Category {
+  id: string;
+  emoji: string;
+  name: string;
+}
+
 export interface DashboardStats {
   currentBalance: number;
   totalIncome: number;

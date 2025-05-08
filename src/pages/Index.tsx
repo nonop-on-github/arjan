@@ -10,11 +10,9 @@ import IncomeConfetti from "@/components/IncomeConfetti";
 import { useTheme } from "next-themes";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useChannels } from "@/hooks/useChannels";
-import { useBudgets } from "@/hooks/useBudgets";
 import { PlusCircle, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChannelManagement from "@/components/ChannelManagement";
-import BudgetOverview from "@/components/BudgetOverview";
 
 const Index = () => {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
@@ -26,21 +24,11 @@ const Index = () => {
   const { setTheme, theme } = useTheme();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { channels, setChannels, isLoading: channelsLoading } = useChannels();
-  const { 
-    budgets,
-    budgetProgress,
-    isLoading: budgetsLoading,
-    addBudget,
-    updateBudget,
-    deleteBudget 
-  } = useBudgets(transactions);
   const pageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Supprimer la détection automatique du thème du système
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -100,15 +88,6 @@ const Index = () => {
             <span className="whitespace-nowrap">Gérer mes canaux</span>
           </Button>
         </div>
-
-        <BudgetOverview
-          budgets={budgets}
-          budgetProgress={budgetProgress}
-          isLoading={budgetsLoading}
-          onAdd={addBudget}
-          onUpdate={updateBudget}
-          onDelete={deleteBudget}
-        />
 
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Dashboard transactions={transactions} channels={channels} />
