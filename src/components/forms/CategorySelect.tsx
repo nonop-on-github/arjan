@@ -97,9 +97,8 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
         <Select
           value={category}
           onValueChange={onCategoryChange}
-          className="flex-1"
         >
-          <SelectTrigger>
+          <SelectTrigger className="flex-1">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
