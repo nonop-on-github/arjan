@@ -109,6 +109,15 @@ const Profile = () => {
       return;
     }
 
+    if (email === user?.email) {
+      toast({
+        title: "Erreur",
+        description: "Le nouvel email doit être différent de l'actuel",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -118,7 +127,7 @@ const Profile = () => {
       
       toast({
         title: "Email mis à jour",
-        description: "Votre email a été mis à jour. Vous devrez peut-être vous reconnecter.",
+        description: "Un email de confirmation a été envoyé à votre nouvelle adresse.",
       });
     } catch (error: any) {
       console.error('Email update error:', error);
@@ -139,6 +148,15 @@ const Profile = () => {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 6 caractères",
         variant: "destructive",
       });
       return;
@@ -184,19 +202,25 @@ const Profile = () => {
     setIsLoading(true);
     
     try {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', user?.id);
-        
-      if (profileError) throw profileError;
+      // D'abord supprimer toutes les données utilisateur
+      const userId = user?.id;
       
-      const { error: authError } = await supabase.auth.admin.deleteUser(
-        user?.id as string
-      );
+      if (!userId) {
+        throw new Error("Utilisateur non identifié");
+      }
+
+      // Supprimer les données dans l'ordre (à cause des contraintes)
+      await Promise.all([
+        supabase.from('transactions').delete().eq('user_id', userId),
+        supabase.from('categories').delete().eq('user_id', userId),
+        supabase.from('budgets').delete().eq('user_id', userId),
+        supabase.from('channels').delete().eq('user_id', userId),
+      ]);
+
+      // Supprimer le profil
+      await supabase.from('profiles').delete().eq('id', userId);
       
-      if (authError) throw authError;
-      
+      // Déconnecter l'utilisateur (cela supprime aussi l'utilisateur auth)
       await signOut();
       
       toast({
@@ -204,7 +228,9 @@ const Profile = () => {
         description: "Votre compte a été supprimé avec succès.",
       });
       
+      // Rediriger vers la page de connexion
       navigate('/login', { replace: true });
+      
     } catch (error: any) {
       console.error('Account deletion error:', error);
       toast({
@@ -258,6 +284,7 @@ const Profile = () => {
                         value={firstName} 
                         onChange={(e) => setFirstName(e.target.value)}
                         disabled={isLoading}
+                        required
                       />
                     </div>
                     <div className="space-y-2">
@@ -286,19 +313,30 @@ const Profile = () => {
               <CardHeader>
                 <CardTitle>Changer d'email</CardTitle>
                 <CardDescription>
-                  Mettez à jour votre adresse email.
+                  Mettez à jour votre adresse email. Un email de confirmation sera envoyé.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUpdateEmail} className="space-y-4">
                   <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium">Email</label>
+                    <label htmlFor="currentEmail" className="text-sm font-medium">Email actuel</label>
+                    <Input 
+                      id="currentEmail" 
+                      type="email"
+                      value={user?.email || ''}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="text-sm font-medium">Nouvel email</label>
                     <Input 
                       id="email" 
                       type="email"
                       value={email} 
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={isLoading}
+                      required
                     />
                   </div>
                   <Button type="submit" disabled={isLoading}>
@@ -314,7 +352,7 @@ const Profile = () => {
               <CardHeader>
                 <CardTitle>Changer de mot de passe</CardTitle>
                 <CardDescription>
-                  Modifiez votre mot de passe.
+                  Modifiez votre mot de passe. Il doit contenir au moins 6 caractères.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -327,6 +365,8 @@ const Profile = () => {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       disabled={isLoading}
+                      minLength={6}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -337,6 +377,8 @@ const Profile = () => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       disabled={isLoading}
+                      minLength={6}
+                      required
                     />
                   </div>
                   <Button type="submit" disabled={isLoading}>
@@ -356,6 +398,10 @@ const Profile = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  La suppression de votre compte supprimera définitivement toutes vos données personnelles, 
+                  transactions, budgets et canaux. Cette action est irréversible.
+                </p>
                 <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" disabled={isLoading}>
@@ -366,12 +412,18 @@ const Profile = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Êtes-vous vraiment sûr ?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Cette action est irréversible. Toutes vos données personnelles et transactions seront supprimées définitivement.
+                        Cette action est irréversible. Toutes vos données personnelles, transactions, 
+                        budgets et canaux seront supprimées définitivement. Vous serez déconnecté 
+                        et redirigé vers la page de connexion.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Annuler</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-500 hover:bg-red-600">
+                      <AlertDialogCancel disabled={isLoading}>Annuler</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDeleteAccount} 
+                        className="bg-red-500 hover:bg-red-600"
+                        disabled={isLoading}
+                      >
                         {isLoading ? "Suppression..." : "Oui, supprimer mon compte"}
                       </AlertDialogAction>
                     </AlertDialogFooter>
