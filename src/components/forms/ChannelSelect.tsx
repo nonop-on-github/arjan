@@ -25,18 +25,25 @@ export function ChannelSelect({ channelId, channels, onChannelChange }: ChannelS
       >
         <SelectTrigger>
           <SelectValue>
-            {channels.find(c => c.id === channelId)?.name || "Sélectionner un canal"}
+            {channels.find(c => c.id === channelId)?.name || 
+             (channels.length === 0 ? "Aucun canal disponible" : "Sélectionner un canal")}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {channels.map((channel) => (
-            <SelectItem key={channel.id} value={channel.id}>
-              <div className="flex items-center gap-2">
-                <span>{channel.icon}</span>
-                <span>{channel.name}</span>
-              </div>
+          {channels.length === 0 ? (
+            <SelectItem value="" disabled>
+              Aucun canal créé
             </SelectItem>
-          ))}
+          ) : (
+            channels.map((channel) => (
+              <SelectItem key={channel.id} value={channel.id}>
+                <div className="flex items-center gap-2">
+                  <span>{channel.icon}</span>
+                  <span>{channel.name}</span>
+                </div>
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
     </div>
