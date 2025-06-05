@@ -38,13 +38,21 @@ const UserMenu = () => {
       : userProfile.firstName || 'Utilisateur';
   };
 
+  const getInitials = () => {
+    if (!userProfile) return 'U';
+    if (userProfile.firstName && userProfile.lastName) {
+      return `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase();
+    }
+    return userProfile.firstName ? userProfile.firstName.charAt(0).toUpperCase() : 'U';
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar>
             <AvatarFallback className="bg-primary text-primary-foreground">
-              <User size={20} />
+              {getInitials()}
             </AvatarFallback>
           </Avatar>
         </Button>

@@ -5,8 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
+import {
+  SuccessDialog,
+  SuccessDialogContent,
+  SuccessDialogHeader,
+  SuccessDialogTitle,
+  SuccessDialogDescription,
+  SuccessDialogClose,
+} from '@/components/ui/success-dialog';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -16,43 +24,27 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const { signUp, signInWithGoogle } = useAuthContext();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !firstName || !lastName) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs",
-        variant: "destructive",
-      });
+    if (!email || !password || !firstName) {
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // Fix here: pass firstName and lastName as metadata object instead of separate parameters
       const { error } = await signUp(email, password, { firstName, lastName });
       
       if (error) throw error;
       
-      toast({
-        title: "Inscription réussie!",
-        description: "Veuillez confirmer votre email pour vous connecter.",
-      });
-      
-      navigate('/login');
+      setShowSuccessDialog(true);
     } catch (error: any) {
       console.error('Registration error:', error);
-      toast({
-        title: "Erreur d'inscription",
-        description: error.message || "Une erreur s'est produite lors de l'inscription.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -69,11 +61,6 @@ const Register = () => {
       // Redirect will be handled by Google OAuth flow
     } catch (error: any) {
       console.error('Google sign in error:', error);
-      toast({
-        title: "Erreur de connexion Google",
-        description: "Impossible de vous connecter avec Google. Veuillez réessayer.",
-        variant: "destructive",
-      });
     } finally {
       setIsGoogleLoading(false);
     }
@@ -81,18 +68,26 @@ const Register = () => {
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
+  const handleSuccessClose = () => {
+    setShowSuccessDialog(false);
+    navigate('/login');
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Logo en haut à gauche */}
-      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2">
-        <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
-        <span className="text-2xl font-bold tracking-tight">arjan</span>
-      </Link>
+      {/* Header avec logo et toggle de thème */}
+      <div className="w-full p-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/arjanLogo.png" alt="Arjan Logo" className="w-8 h-8 rounded-md" />
+          <span className="text-2xl font-bold tracking-tight">arjan</span>
+        </Link>
+        <ThemeToggle />
+      </div>
       
-      <div className="flex flex-1 flex-col md:flex-row">
+      <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
         {/* Section formulaire (gauche) */}
-        <div className="flex-1 flex items-center justify-center p-4 order-2 md:order-1">
-          <Card className="w-full max-w-md my-8">
+        <div className="flex-1 flex items-center justify-center p-4 order-2 md:order-1 overflow-y-auto">
+          <Card className="w-full max-w-md">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold">Inscription</CardTitle>
             </CardHeader>
@@ -146,13 +141,16 @@ const Register = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label htmlFor="firstName" className="text-sm font-medium">Prénom</label>
+                    <label htmlFor="firstName" className="text-sm font-medium">
+                      Prénom <span className="text-red-500">*</span>
+                    </label>
                     <Input 
                       id="firstName" 
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Jean"
                       disabled={isLoading}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -167,7 +165,9 @@ const Register = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">Email</label>
+                  <label htmlFor="email" className="text-sm font-medium">
+                    Email <span className="text-red-500">*</span>
+                  </label>
                   <Input 
                     id="email" 
                     type="email" 
@@ -175,10 +175,13 @@ const Register = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="jean.dupont@exemple.com"
                     disabled={isLoading}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="password" className="text-sm font-medium">Mot de passe</label>
+                  <label htmlFor="password" className="text-sm font-medium">
+                    Mot de passe <span className="text-red-500">*</span>
+                  </label>
                   <div className="relative">
                     <Input 
                       id="password" 
@@ -186,6 +189,7 @@ const Register = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}
+                      required
                     />
                     <button
                       type="button"
@@ -200,6 +204,9 @@ const Register = () => {
                     </button>
                   </div>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-red-500">*</span> Champs obligatoires
+                </p>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Inscription en cours..." : "S'inscrire"}
                 </Button>
@@ -217,13 +224,36 @@ const Register = () => {
         </div>
         
         {/* Section verte (droite) */}
-        <div className="md:flex-1 bg-green-500 flex items-center justify-center p-6 md:p-0 order-1 md:order-2 min-h-[30vh] md:min-h-screen">
+        <div className="md:flex-1 bg-green-500 dark:bg-green-700 flex items-center justify-center p-6 md:p-0 order-1 md:order-2 min-h-[30vh] md:min-h-0">
           <div className="text-white text-center p-4 md:p-8 max-w-lg">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Gérez vos dépenses et revenus facilement. 💸</h2>
             <p className="text-white/80 text-md md:text-lg">Suivez vos finances sur vos différents canaux, et voyez y plus clair dans vos dépenses.</p>
           </div>
         </div>
       </div>
+
+      {/* Dialog de succès */}
+      <SuccessDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <SuccessDialogContent>
+          <SuccessDialogHeader>
+            <SuccessDialogTitle>
+              <CheckCircle className="h-6 w-6 text-green-500" />
+              Inscription réussie !
+            </SuccessDialogTitle>
+            <SuccessDialogDescription>
+              Un email de confirmation a été envoyé à votre adresse email. 
+              Veuillez cliquer sur le lien dans l'email pour activer votre compte.
+            </SuccessDialogDescription>
+          </SuccessDialogHeader>
+          <div className="flex justify-end">
+            <SuccessDialogClose asChild>
+              <Button onClick={handleSuccessClose}>
+                Aller à la connexion
+              </Button>
+            </SuccessDialogClose>
+          </div>
+        </SuccessDialogContent>
+      </SuccessDialog>
     </div>
   );
 };

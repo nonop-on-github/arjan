@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,6 +23,7 @@ const Login = () => {
   const {
     toast
   } = useToast();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -53,6 +56,7 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
@@ -73,8 +77,11 @@ const Login = () => {
       setIsGoogleLoading(false);
     }
   };
+
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  return <div className="flex flex-col min-h-screen bg-background">
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Header avec logo et toggle de thème */}
       <div className="w-full p-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
@@ -84,9 +91,9 @@ const Login = () => {
         <ThemeToggle />
       </div>
       
-      <div className="flex flex-1 flex-col md:flex-row">
+      <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
         {/* Section formulaire (gauche) */}
-        <div className="flex-1 flex items-center justify-center p-4 order-2 md:order-1">
+        <div className="flex-1 flex items-center justify-center p-4 order-2 md:order-1 overflow-y-auto">
           <Card className="w-full max-w-md">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
@@ -148,13 +155,15 @@ const Login = () => {
         </div>
         
         {/* Section verte (droite) */}
-        <div className="md:flex-1 bg-green-500 dark:bg-green-700 flex items-center justify-center p-6 md:p-0 order-1 md:order-2 min-h-[30vh] md:min-h-screen">
+        <div className="md:flex-1 bg-green-500 dark:bg-green-700 flex items-center justify-center p-6 md:p-0 order-1 md:order-2 min-h-[30vh] md:min-h-0">
           <div className="text-white text-center p-4 md:p-8 max-w-lg">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Gérez vos dépenses et revenus facilement.</h2>
             <p className="text-white/80 text-md md:text-lg text-center">Suivez vos finances sur vos différents canaux, et voyez y plus clair dans vos dépenses.</p>
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Login;

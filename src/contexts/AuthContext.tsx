@@ -97,11 +97,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (_event, session) => {
+          async (event, session) => {
+            console.log('Auth state change:', event, session?.user?.user_metadata);
             setSession(session);
             setUser(session?.user ?? null);
             
             if (session?.user) {
+              // Pour les nouveaux utilisateurs Google, créer le profil si nécessaire
+              if (event === 'SIGNED_IN' && session.user.user_metadata) {
+                const metadata = session.user.user_metadata;
+                console.log('User metadata:', metadata);
+                
+                // Vérifier si le profil existe
+                const { data: existingProfile } = await supabase
+                  .from('profiles')
+                  .select('id')
+                  .eq('id', session.user.id)
+                  .single();
+                
+                if (!existingProfile) {
+                  // Créer le profil avec les données Google
+                  const firstName = metadata.given_name || metadata.first_name || metadata.firstName || '';
+                  const lastName = metadata.family_name || metadata.last_name || metadata.lastName || '';
+                  
+                  await supabase
+                    .from('profiles')
+                    .insert({
+                      id: session.user.id,
+                      first_name: firstName,
+                      last_name: lastName
+                    });
+                }
+              }
+              
               await fetchUserProfile(session.user.id);
               setupRefreshToken();
             } else {

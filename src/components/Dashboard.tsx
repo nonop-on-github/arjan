@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Transaction, DashboardStats, CategoryTotal, Channel } from "@/types/finance";
 import { Euro, TrendingUp, TrendingDown } from "lucide-react";
+import { useAuthContext } from "@/contexts/AuthContext";
 import {
   BarChart,
   Bar,
@@ -19,6 +20,8 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ transactions, channels }: DashboardProps) => {
+  const { userProfile } = useAuthContext();
+
   const stats: DashboardStats = useMemo(() => {
     const channelBalances: Record<string, number> = {};
     
@@ -73,8 +76,21 @@ const Dashboard = ({ transactions, channels }: DashboardProps) => {
       .sort((a, b) => b.amount - a.amount);
   }, [transactions]);
 
+  const getWelcomeMessage = () => {
+    const firstName = userProfile?.firstName;
+    if (firstName) {
+      return `Bienvenue, ${firstName} !`;
+    }
+    return "Tableau de bord";
+  };
+
   return (
     <>
+      {/* Titre de bienvenue */}
+      <div className="col-span-full mb-6">
+        <h1 className="text-3xl font-bold text-foreground">{getWelcomeMessage()}</h1>
+      </div>
+
       <Card className="p-6 animate-slideIn">
         <div className="flex items-center gap-4">
           <div className="p-4 rounded-full bg-blue-100">
