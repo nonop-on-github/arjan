@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import Footer from '@/components/Footer';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -157,11 +157,13 @@ const Login = () => {
         {/* Section verte (droite) */}
         <div className="md:flex-1 bg-green-500 dark:bg-green-700 flex items-center justify-center p-6 md:p-0 order-1 md:order-2 min-h-[30vh] md:min-h-0">
           <div className="text-white text-center p-4 md:p-8 max-w-lg">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Gérez vos dépenses et revenus facilement.</h2>
-            <p className="text-white/80 text-md md:text-lg text-center">Suivez vos finances sur vos différents canaux, et voyez y plus clair dans vos dépenses.</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">Reprenez le contrôle de vos finances ! 💰</h2>
+            <p className="text-white/80 text-md md:text-lg">Connectez-vous pour accéder à votre tableau de bord et suivre vos dépenses en temps réel.</p>
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

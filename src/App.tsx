@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Profile from "./pages/Profile";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +28,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/email-confirmed" element={<EmailConfirmed />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/" element={
                 <ProtectedRoute>
                   <Index />

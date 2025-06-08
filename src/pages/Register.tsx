@@ -28,10 +28,34 @@ const Register = () => {
   const { signUp, signInWithGoogle } = useAuthContext();
   const navigate = useNavigate();
 
+  // Validation du mot de passe
+  const validatePassword = (password: string) => {
+    const minLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    return {
+      minLength,
+      hasUpper,
+      hasLower,
+      hasNumber,
+      hasSpecial,
+      isValid: minLength && hasUpper && hasLower && hasNumber && hasSpecial
+    };
+  };
+
+  const passwordValidation = validatePassword(password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password || !firstName) {
+      return;
+    }
+
+    if (!passwordValidation.isValid) {
       return;
     }
 
@@ -203,11 +227,44 @@ const Register = () => {
                       )}
                     </button>
                   </div>
+                  
+                  {/* Indicateurs de force du mot de passe */}
+                  {password && (
+                    <div className="space-y-2 text-xs">
+                      <div className="text-muted-foreground">Exigences du mot de passe :</div>
+                      <div className="grid grid-cols-1 gap-1">
+                        <div className={`flex items-center gap-2 ${passwordValidation.minLength ? 'text-green-600' : 'text-red-500'}`}>
+                          <span>{passwordValidation.minLength ? '✓' : '✗'}</span>
+                          Au moins 8 caractères
+                        </div>
+                        <div className={`flex items-center gap-2 ${passwordValidation.hasUpper ? 'text-green-600' : 'text-red-500'}`}>
+                          <span>{passwordValidation.hasUpper ? '✓' : '✗'}</span>
+                          Une majuscule
+                        </div>
+                        <div className={`flex items-center gap-2 ${passwordValidation.hasLower ? 'text-green-600' : 'text-red-500'}`}>
+                          <span>{passwordValidation.hasLower ? '✓' : '✗'}</span>
+                          Une minuscule
+                        </div>
+                        <div className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-red-500'}`}>
+                          <span>{passwordValidation.hasNumber ? '✓' : '✗'}</span>
+                          Un chiffre
+                        </div>
+                        <div className={`flex items-center gap-2 ${passwordValidation.hasSpecial ? 'text-green-600' : 'text-red-500'}`}>
+                          <span>{passwordValidation.hasSpecial ? '✓' : '✗'}</span>
+                          Un caractère spécial
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-red-500">*</span> Champs obligatoires
                 </p>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading || !passwordValidation.isValid}
+                >
                   {isLoading ? "Inscription en cours..." : "S'inscrire"}
                 </Button>
               </form>
