@@ -172,7 +172,7 @@ const Register = () => {
                       id="firstName" 
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Jean"
+                      placeholder="Jaime"
                       disabled={isLoading}
                       required
                     />
@@ -183,7 +183,7 @@ const Register = () => {
                       id="lastName" 
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Dupont"
+                      placeholder="Larjan"
                       disabled={isLoading}
                     />
                   </div>
@@ -197,7 +197,7 @@ const Register = () => {
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="jean.dupont@exemple.com"
+                    placeholder="jaime.l@arjan.com"
                     disabled={isLoading}
                     required
                   />
