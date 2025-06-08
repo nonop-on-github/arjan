@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/select";
 import { Category } from "@/types/finance";
 import CategoryCreateDialog from "./CategoryCreateDialog";
+import CategoryManagementDialog from "./CategoryManagementDialog";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { fetchUserCategories, addUserCategory } from "@/services/categoryService";
+import { fetchUserCategories, addUserCategory, updateUserCategory, deleteUserCategory } from "@/services/categoryService";
 import { useToast } from "@/hooks/use-toast";
 
 // Catégories par défaut pour les nouveaux utilisateurs
@@ -35,6 +36,7 @@ interface CategorySelectProps {
 export function CategorySelect({ category, onCategoryChange }: CategorySelectProps) {
   const [categories, setCategories] = useState<Category[]>(defaultCategories);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showManageDialog, setShowManageDialog] = useState(false);
   const { user } = useAuthContext();
   const { toast } = useToast();
   
@@ -90,6 +92,84 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
     }
   };
 
+  const handleUpdateCategory = async (updatedCategory: Category) => {
+    if (!user) {
+      toast({
+        title: "Erreur",
+        description: "Vous devez être connecté pour modifier une catégorie",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      await updateUserCategory(updatedCategory, user.id);
+      
+      setCategories(prev => 
+        prev.map(cat => 
+          cat.id === updatedCategory.id ? updatedCategory : cat
+        )
+      );
+      
+      // Mettre à jour la catégorie sélectionnée si c'est celle qui a été modifiée
+      const currentCategoryId = categories.find(cat => `${cat.emoji} ${cat.name}` === category)?.id;
+      if (currentCategoryId === updatedCategory.id) {
+        onCategoryChange(`${updatedCategory.emoji} ${updatedCategory.name}`);
+      }
+      
+      toast({
+        title: "Succès",
+        description: "Catégorie modifiée avec succès",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la modification de la catégorie:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier la catégorie",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!user) {
+      toast({
+        title: "Erreur",
+        description: "Vous devez être connecté pour supprimer une catégorie",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      await deleteUserCategory(categoryId, user.id);
+      
+      // Supprimer la catégorie de la liste
+      const categoryToDelete = categories.find(cat => cat.id === categoryId);
+      setCategories(prev => prev.filter(cat => cat.id !== categoryId));
+      
+      // Si la catégorie supprimée était sélectionnée, sélectionner la première catégorie disponible
+      if (categoryToDelete && `${categoryToDelete.emoji} ${categoryToDelete.name}` === category) {
+        const remainingCategories = categories.filter(cat => cat.id !== categoryId);
+        if (remainingCategories.length > 0) {
+          onCategoryChange(`${remainingCategories[0].emoji} ${remainingCategories[0].name}`);
+        }
+      }
+      
+      toast({
+        title: "Succès",
+        description: "Catégorie supprimée avec succès",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la catégorie:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la catégorie",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Label>Catégorie</Label>
@@ -114,8 +194,18 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
           variant="outline"
           onClick={() => setShowCreateDialog(true)}
           size="icon"
+          title="Ajouter une catégorie"
         >
           <Plus className="h-4 w-4" />
+        </Button>
+        <Button 
+          type="button" 
+          variant="outline"
+          onClick={() => setShowManageDialog(true)}
+          size="icon"
+          title="Gérer les catégories"
+        >
+          <Settings className="h-4 w-4" />
         </Button>
       </div>
 
@@ -124,6 +214,17 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
           open={showCreateDialog}
           onClose={() => setShowCreateDialog(false)}
           onCreateCategory={handleCreateCategory}
+        />
+      )}
+
+      {showManageDialog && (
+        <CategoryManagementDialog
+          open={showManageDialog}
+          onClose={() => setShowManageDialog(false)}
+          categories={categories}
+          onCreateCategory={handleCreateCategory}
+          onUpdateCategory={handleUpdateCategory}
+          onDeleteCategory={handleDeleteCategory}
         />
       )}
     </div>
