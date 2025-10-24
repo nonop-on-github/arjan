@@ -31,7 +31,7 @@ export function ChannelSelect({ channelId, channels, onChannelChange }: ChannelS
         </SelectTrigger>
         <SelectContent>
           {channels.length === 0 ? (
-            <SelectItem value="" disabled>
+            <SelectItem value="no-channels" disabled>
               Aucun canal créé
             </SelectItem>
           ) : (

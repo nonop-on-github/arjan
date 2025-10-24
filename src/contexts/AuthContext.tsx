@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('profiles')
         .select('first_name, last_name')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .single();
 
       if (error) {
@@ -111,8 +111,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Vérifier si le profil existe
                 const { data: existingProfile } = await supabase
                   .from('profiles')
-                  .select('id')
-                  .eq('id', session.user.id)
+                  .select('user_id')
+                  .eq('user_id', session.user.id)
                   .single();
                 
                 if (!existingProfile) {
@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   await supabase
                     .from('profiles')
                     .insert({
-                      id: session.user.id,
+                      user_id: session.user.id,
                       first_name: firstName,
                       last_name: lastName
                     });

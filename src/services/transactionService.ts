@@ -9,13 +9,13 @@ export const formatDbTransaction = (t: DbTransaction): Transaction => ({
   amount: Number(t.amount),
   type: t.type,
   date: new Date(t.date),
-  description: t.description,
-  category: t.category,
-  channelId: t.channel_id || "default-card", // Valeur par défaut pour la compatibilité
+  description: t.description || "",
+  category: t.category_id || "",
+  channelId: t.channel_id || "",
   isRecurring: t.is_recurring ?? false,
-  frequency: t.frequency || undefined,
-  nextDate: t.next_date ? new Date(t.next_date) : undefined,
-  endDate: t.end_date ? new Date(t.end_date) : undefined,
+  frequency: t.recurring_frequency || undefined,
+  nextDate: undefined, // This field is not in the database
+  endDate: t.recurring_end_date ? new Date(t.recurring_end_date) : undefined,
 });
 
 // Format transaction from application model to database format
@@ -25,12 +25,11 @@ export const formatTransactionForDb = (transaction: Transaction, userId: string)
   type: transaction.type,
   date: transaction.date.toISOString().split('T')[0],
   description: transaction.description,
-  category: transaction.category,
-  channel_id: transaction.channelId,
+  category_id: transaction.category || null,
+  channel_id: transaction.channelId || null,
   is_recurring: transaction.isRecurring,
-  frequency: transaction.frequency,
-  next_date: transaction.nextDate?.toISOString().split('T')[0],
-  end_date: transaction.endDate?.toISOString().split('T')[0],
+  recurring_frequency: transaction.frequency || null,
+  recurring_end_date: transaction.endDate?.toISOString().split('T')[0] || null,
 });
 
 // Fetch all transactions for a user

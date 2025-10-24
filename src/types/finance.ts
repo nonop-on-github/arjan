@@ -1,7 +1,7 @@
 
 export type TransactionType = "income" | "expense";
 
-export type TransactionFrequency = "once" | "monthly" | "yearly";
+export type TransactionFrequency = "daily" | "weekly" | "monthly" | "yearly";
 
 export interface Channel {
   id: string;
