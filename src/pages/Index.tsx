@@ -34,7 +34,7 @@ const Index = () => {
   } = useTransactions();
   const {
     channels,
-    setChannels,
+    refreshChannels,
     isLoading: channelsLoading
   } = useChannels();
   const pageRef = useRef<HTMLDivElement>(null);
@@ -93,7 +93,7 @@ const Index = () => {
           setEditingTransaction(null);
         }} channels={channels} />}
           
-          {showChannelManager && <ChannelManagement open={showChannelManager} onClose={() => setShowChannelManager(false)} channels={channels} onChannelsUpdate={setChannels} />}
+          {showChannelManager && <ChannelManagement open={showChannelManager} onClose={() => setShowChannelManager(false)} channels={channels} onChannelsUpdate={refreshChannels} />}
           
           <IncomeConfetti show={showConfetti} onComplete={() => setShowConfetti(false)} />
           

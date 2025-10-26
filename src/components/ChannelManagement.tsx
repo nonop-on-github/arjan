@@ -18,7 +18,7 @@ interface ChannelManagementProps {
   open: boolean;
   onClose: () => void;
   channels: Channel[];
-  onChannelsUpdate: (channels: Channel[]) => void;
+  onChannelsUpdate: () => void;
 }
 
 const DEFAULT_ICONS = ["💳", "💰", "🏦", "💶", "📱"];
@@ -73,21 +73,14 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
       if (error) throw error;
       
       if (data) {
-        const channel: Channel = {
-          id: data.id,
-          name: data.name,
-          icon: data.icon,
-          color: data.color || undefined,
-        };
-        
-        const updatedChannels = [...channels, channel];
-        onChannelsUpdate(updatedChannels);
         setNewChannel({ name: "", icon: DEFAULT_ICONS[0] });
         
         toast({
           title: "Succès",
           description: "Canal ajouté",
         });
+        
+        onChannelsUpdate();
         onClose();
       }
     } catch (error) {
@@ -118,17 +111,14 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
         throw error;
       }
 
-      const updatedChannels = channels.map((channel) => 
-        channel.id === editingChannel.id ? {...editingChannel} : channel
-      );
-      
-      onChannelsUpdate(updatedChannels);
       setEditingChannel(null);
       
       toast({
         title: "Succès",
         description: "Canal mis à jour",
       });
+      
+      onChannelsUpdate();
       onClose();
     } catch (error) {
       console.error('Error updating channel:', error);
@@ -152,13 +142,12 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
 
       if (error) throw error;
 
-      const updatedChannels = channels.filter((c) => c.id !== id);
-      onChannelsUpdate(updatedChannels);
-      
       toast({
         title: "Succès",
         description: "Canal supprimé",
       });
+      
+      onChannelsUpdate();
     } catch (error) {
       console.error('Error deleting channel:', error);
       toast({
