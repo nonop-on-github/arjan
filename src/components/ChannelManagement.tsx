@@ -7,12 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Channel } from "@/types/finance";
 import { X, Edit, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect } from "react";
+import { addUserChannel, updateUserChannel, deleteUserChannel } from "@/services/channelService";
 
 interface ChannelManagementProps {
   open: boolean;
@@ -67,35 +67,29 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     }
 
     try {
-      const { data, error } = await supabase
-        .from('channels')
-        .insert({
-          name: newChannel.name,
+      await addUserChannel(
+        {
+          name: newChannel.name!,
           icon: newChannel.icon || "💳",
           color: newChannel.color,
-          user_id: user.id
-        })
-        .select()
-        .single();
+        },
+        user.id
+      );
 
-      if (error) throw error;
-      
-      if (data) {
-        setNewChannel({ name: "", icon: DEFAULT_ICONS[0] });
-        
-        toast({
-          title: "Succès",
-          description: "Canal ajouté",
-        });
-        
-        onChannelsUpdate();
-        onClose();
-      }
-    } catch (error) {
+      setNewChannel({ name: "", icon: DEFAULT_ICONS[0] });
+
+      toast({
+        title: "Succès",
+        description: "Canal ajouté",
+      });
+
+      onChannelsUpdate();
+      onClose();
+    } catch (error: any) {
       console.error('Error adding channel:', error);
       toast({
         title: "Erreur",
-        description: "Impossible d'ajouter le canal",
+        description: error?.message || "Impossible d'ajouter le canal",
         variant: "destructive",
       });
     }
@@ -105,19 +99,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     if (!user || !editingChannel) return;
     
     try {
-      const { error } = await supabase
-        .from('channels')
-        .update({
-          name: editingChannel.name,
-          icon: editingChannel.icon,
-          color: editingChannel.color,
-        })
-        .eq('id', editingChannel.id);
-
-      if (error) {
-        console.error('Update error:', error);
-        throw error;
-      }
+      await updateUserChannel(editingChannel, user.id);
 
       setEditingChannel(null);
       
@@ -128,11 +110,11 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
       
       onChannelsUpdate();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating channel:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour le canal",
+        description: error?.message || "Impossible de mettre à jour le canal",
         variant: "destructive",
       });
     }
@@ -142,13 +124,7 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
     if (!user) return;
     
     try {
-      const { error } = await supabase
-        .from('channels')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
+      await deleteUserChannel(id, user.id);
 
       toast({
         title: "Succès",
@@ -156,11 +132,11 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
       });
       
       onChannelsUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting channel:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer le canal",
+        description: error?.message || "Impossible de supprimer le canal",
         variant: "destructive",
       });
     }
