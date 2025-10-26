@@ -48,7 +48,15 @@ export const ChannelManagement = ({ open, onClose, channels, onChannelsUpdate }:
   }, []);
 
   const handleAddChannel = async () => {
-    if (!user) return;
+    if (!user) {
+      console.warn("handleAddChannel: no user in context");
+      toast({
+        title: "Non connecté",
+        description: "Veuillez vous reconnecter pour ajouter un canal.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!newChannel.name) {
       toast({
         title: "Erreur",

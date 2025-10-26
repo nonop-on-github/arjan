@@ -93,7 +93,7 @@ const Index = () => {
           setEditingTransaction(null);
         }} channels={channels} />}
           
-          {showChannelManager && <ChannelManagement open={showChannelManager} onClose={() => setShowChannelManager(false)} channels={channels} onChannelsUpdate={refreshChannels} />}
+          {showChannelManager && <ChannelManagement open={showChannelManager} onClose={() => { setShowChannelManager(false); refreshChannels(); }} channels={channels} onChannelsUpdate={refreshChannels} />}
           
           <IncomeConfetti show={showConfetti} onComplete={() => setShowConfetti(false)} />
           
