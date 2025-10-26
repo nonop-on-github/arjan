@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { DbTransaction, DbInsertTransaction } from "@/types/supabaseTypes";
 import { Transaction } from "@/types/finance";
+import { transactionSchema } from "@/lib/validationSchemas";
 
 // Format transaction data from the database to application model
 export const formatDbTransaction = (t: DbTransaction): Transaction => ({
@@ -46,6 +47,9 @@ export const fetchUserTransactions = async (userId: string) => {
 
 // Add a new transaction
 export const addUserTransaction = async (transaction: Transaction, userId: string) => {
+  // Validate input
+  transactionSchema.parse(transaction);
+  
   const { data, error } = await supabase
     .from('transactions')
     .insert(formatTransactionForDb(transaction, userId))
@@ -58,6 +62,9 @@ export const addUserTransaction = async (transaction: Transaction, userId: strin
 
 // Update an existing transaction
 export const updateUserTransaction = async (transaction: Transaction, userId: string) => {
+  // Validate input
+  transactionSchema.parse(transaction);
+  
   const { error } = await supabase
     .from('transactions')
     .update(formatTransactionForDb(transaction, userId))

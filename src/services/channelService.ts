@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Channel } from "@/types/finance";
+import { channelSchema } from "@/lib/validationSchemas";
 
 // DB type for channels
 interface DbChannel {
@@ -32,13 +33,20 @@ export const addUserChannel = async (
   params: { name: string; icon: string; color?: string },
   userId: string
 ): Promise<Channel> => {
+  // Validate input
+  const validated = channelSchema.parse({
+    name: params.name,
+    icon: params.icon,
+    color: params.color,
+  });
+  
   const { data, error } = await supabase
     .from('channels')
     .insert({
       user_id: userId,
-      name: params.name,
-      icon: params.icon,
-      color: params.color ?? null,
+      name: validated.name,
+      icon: validated.icon,
+      color: validated.color ?? null,
     })
     .select()
     .maybeSingle();
@@ -52,12 +60,15 @@ export const updateUserChannel = async (
   channel: Channel,
   userId: string
 ): Promise<boolean> => {
+  // Validate input
+  const validated = channelSchema.parse(channel);
+  
   const { error } = await supabase
     .from('channels')
     .update({
-      name: channel.name,
-      icon: channel.icon,
-      color: channel.color ?? null,
+      name: validated.name,
+      icon: validated.icon,
+      color: validated.color ?? null,
     })
     .eq('id', channel.id)
     .eq('user_id', userId);

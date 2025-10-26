@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Category } from "@/types/finance";
+import { categorySchema } from "@/lib/validationSchemas";
 
 // Type pour les catégories dans la base de données
 interface DbCategory {
@@ -31,12 +32,15 @@ export const fetchUserCategories = async (userId: string): Promise<Category[]> =
 
 // Ajouter une nouvelle catégorie
 export const addUserCategory = async (category: Category, userId: string): Promise<Category> => {
+  // Validate input
+  const validated = categorySchema.parse(category);
+  
   const { data, error } = await supabase
     .from('categories')
     .insert({
       user_id: userId,
-      emoji: category.emoji,
-      name: category.name
+      emoji: validated.emoji,
+      name: validated.name
     })
     .select()
     .single();
@@ -47,11 +51,14 @@ export const addUserCategory = async (category: Category, userId: string): Promi
 
 // Mettre à jour une catégorie existante
 export const updateUserCategory = async (category: Category, userId: string): Promise<boolean> => {
+  // Validate input
+  const validated = categorySchema.parse(category);
+  
   const { error } = await supabase
     .from('categories')
     .update({
-      emoji: category.emoji,
-      name: category.name
+      emoji: validated.emoji,
+      name: validated.name
     })
     .eq('id', category.id)
     .eq('user_id', userId);

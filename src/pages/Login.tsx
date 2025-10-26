@@ -46,7 +46,6 @@ const Login = () => {
         replace: true
       });
     } catch (error: any) {
-      console.error('Login error:', error);
       toast({
         title: "Erreur de connexion",
         description: error.message === "Invalid login credentials" ? "Identifiants invalides. Veuillez vérifier votre email et mot de passe." : "Impossible de vous connecter. Veuillez réessayer.",

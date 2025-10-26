@@ -67,7 +67,7 @@ const Profile = () => {
           first_name: firstName,
           last_name: lastName
         })
-        .eq('id', user?.id);
+        .eq('user_id', user?.id);
         
       if (error) throw error;
       
@@ -86,7 +86,6 @@ const Profile = () => {
       }, 1500);
       
     } catch (error: any) {
-      console.error('Profile update error:', error);
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour votre profil. Veuillez réessayer.",
@@ -130,7 +129,6 @@ const Profile = () => {
         description: "Un email de confirmation a été envoyé à votre nouvelle adresse.",
       });
     } catch (error: any) {
-      console.error('Email update error:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de mettre à jour votre email.",
@@ -153,10 +151,25 @@ const Profile = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
+    // Validate password strength (same as registration)
+    if (newPassword.length < 8) {
       toast({
         title: "Erreur",
-        description: "Le mot de passe doit contenir au moins 6 caractères",
+        description: "Le mot de passe doit contenir au moins 8 caractères",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasLowerCase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasSpecialChar = /[^A-Za-z0-9]/.test(newPassword);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial",
         variant: "destructive",
       });
       return;
@@ -187,7 +200,6 @@ const Profile = () => {
         description: "Votre mot de passe a été mis à jour avec succès.",
       });
     } catch (error: any) {
-      console.error('Password update error:', error);
       toast({
         title: "Erreur",
         description: error.message || "Impossible de mettre à jour votre mot de passe.",
@@ -218,7 +230,7 @@ const Profile = () => {
       ]);
 
       // Supprimer le profil
-      await supabase.from('profiles').delete().eq('id', userId);
+      await supabase.from('profiles').delete().eq('user_id', userId);
       
       // Déconnecter l'utilisateur (cela supprime aussi l'utilisateur auth)
       await signOut();
@@ -232,7 +244,6 @@ const Profile = () => {
       navigate('/login', { replace: true });
       
     } catch (error: any) {
-      console.error('Account deletion error:', error);
       toast({
         title: "Erreur",
         description: "Impossible de supprimer votre compte. Veuillez réessayer.",
