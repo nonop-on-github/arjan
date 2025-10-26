@@ -214,25 +214,12 @@ const Profile = () => {
     setIsLoading(true);
     
     try {
-      // D'abord supprimer toutes les données utilisateur
-      const userId = user?.id;
+      // Use the secure database function for account deletion
+      const { error } = await supabase.rpc('delete_user_account');
       
-      if (!userId) {
-        throw new Error("Utilisateur non identifié");
-      }
-
-      // Supprimer les données dans l'ordre (à cause des contraintes)
-      await Promise.all([
-        supabase.from('transactions').delete().eq('user_id', userId),
-        supabase.from('categories').delete().eq('user_id', userId),
-        supabase.from('budgets').delete().eq('user_id', userId),
-        supabase.from('channels').delete().eq('user_id', userId),
-      ]);
-
-      // Supprimer le profil
-      await supabase.from('profiles').delete().eq('user_id', userId);
+      if (error) throw error;
       
-      // Déconnecter l'utilisateur (cela supprime aussi l'utilisateur auth)
+      // Sign out the user
       await signOut();
       
       toast({
@@ -240,7 +227,7 @@ const Profile = () => {
         description: "Votre compte a été supprimé avec succès.",
       });
       
-      // Rediriger vers la page de connexion
+      // Redirect to login page
       navigate('/login', { replace: true });
       
     } catch (error: any) {

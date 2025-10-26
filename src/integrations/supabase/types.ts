@@ -204,7 +204,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_user_account: { Args: never; Returns: undefined }
     }
     Enums: {
       transaction_frequency: "daily" | "weekly" | "monthly" | "yearly"

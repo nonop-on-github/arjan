@@ -68,7 +68,6 @@ const Register = () => {
       
       setShowSuccessDialog(true);
     } catch (error: any) {
-      console.error('Registration error:', error);
     } finally {
       setIsLoading(false);
     }

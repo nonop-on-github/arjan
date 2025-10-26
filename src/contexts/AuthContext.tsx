@@ -98,7 +98,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log('Auth state change:', event, session?.user?.user_metadata);
+            if (import.meta.env.DEV) {
+              console.log('Auth state change:', event);
+            }
             setSession(session);
             setUser(session?.user ?? null);
             
@@ -106,7 +108,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // Pour les nouveaux utilisateurs Google, créer le profil si nécessaire
               if (event === 'SIGNED_IN' && session.user.user_metadata) {
                 const metadata = session.user.user_metadata;
-                console.log('User metadata:', metadata);
                 
                 // Vérifier si le profil existe
                 const { data: existingProfile } = await supabase
