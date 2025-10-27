@@ -115,7 +115,13 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
                 inputMode="decimal"
                 required
                 value={formData.amount}
-                onChange={(e) => updateFormData("amount", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Ne permet que les chiffres et une seule virgule
+                  if (value === '' || /^[0-9]*,?[0-9]*$/.test(value)) {
+                    updateFormData("amount", value);
+                  }
+                }}
                 placeholder="0,00"
               />
             </div>
