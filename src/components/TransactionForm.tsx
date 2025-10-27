@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -127,6 +127,9 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
           <DialogTitle>
             {transaction ? "Modifier la transaction" : "Nouvelle transaction"}
           </DialogTitle>
+          <DialogDescription>
+            Remplissez les informations de la transaction
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
