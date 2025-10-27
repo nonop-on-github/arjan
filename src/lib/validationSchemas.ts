@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 // Category validation schema
 export const categorySchema = z.object({
-  id: z.string().optional(),
+  id: z.string().optional().or(z.literal("")),
   name: z.string().trim().min(1, "Le nom est requis").max(100, "Le nom ne peut pas dépasser 100 caractères"),
   emoji: z.string().trim().min(1, "L'emoji est requis").max(4, "L'emoji ne peut pas dépasser 4 caractères"),
 });
 
 // Channel validation schema
 export const channelSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().optional().or(z.literal("")),
   name: z.string().trim().min(1, "Le nom est requis").max(100, "Le nom ne peut pas dépasser 100 caractères"),
   icon: z.string().trim().min(1, "L'icône est requis").max(4, "L'icône ne peut pas dépasser 4 caractères"),
   color: z.string().optional(),
