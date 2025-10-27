@@ -25,7 +25,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
     type: "expense" as TransactionType,
     date: new Date().toISOString().split("T")[0],
     description: "",
-    category: "🥦 Alimentation",
+    category: "",
     channelId: channels.length > 0 ? channels[0].id : "",
     isRecurring: false,
     frequency: "monthly" as TransactionFrequency,

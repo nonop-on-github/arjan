@@ -22,7 +22,7 @@ export const transactionSchema = z.object({
   type: z.enum(["income", "expense"], { errorMap: () => ({ message: "Type invalide" }) }),
   date: z.date(),
   description: z.string().trim().max(500, "La description ne peut pas dépasser 500 caractères").optional(),
-  category: z.string().trim().max(100, "La catégorie ne peut pas dépasser 100 caractères"),
+  category: z.string().uuid("Catégorie invalide").or(z.literal("")),
   channelId: z.string().trim().max(100, "Le canal ne peut pas dépasser 100 caractères"),
   isRecurring: z.boolean(),
   frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),

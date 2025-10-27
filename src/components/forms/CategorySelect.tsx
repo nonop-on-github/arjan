@@ -76,7 +76,7 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
       }, user.id);
       
       setCategories(prev => [...prev, newCategory]);
-      onCategoryChange(`${newCategory.emoji} ${newCategory.name}`);
+      onCategoryChange(newCategory.id);
       
       toast({
         title: "Succès",
@@ -112,9 +112,9 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
       );
       
       // Mettre à jour la catégorie sélectionnée si c'est celle qui a été modifiée
-      const currentCategoryId = categories.find(cat => `${cat.emoji} ${cat.name}` === category)?.id;
+      const currentCategoryId = category;
       if (currentCategoryId === updatedCategory.id) {
-        onCategoryChange(`${updatedCategory.emoji} ${updatedCategory.name}`);
+        onCategoryChange(updatedCategory.id);
       }
       
       toast({
@@ -149,10 +149,14 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
       setCategories(prev => prev.filter(cat => cat.id !== categoryId));
       
       // Si la catégorie supprimée était sélectionnée, sélectionner la première catégorie disponible
-      if (categoryToDelete && `${categoryToDelete.emoji} ${categoryToDelete.name}` === category) {
-        const remainingCategories = categories.filter(cat => cat.id !== categoryId);
+      if (categoryToDelete && categoryId === category) {
+        const remainingCategories = categories
+          .filter(cat => cat.id !== categoryId)
+          .filter(cat => /^[0-9a-fA-F-]{36}$/.test(cat.id));
         if (remainingCategories.length > 0) {
-          onCategoryChange(`${remainingCategories[0].emoji} ${remainingCategories[0].name}`);
+          onCategoryChange(remainingCategories[0].id);
+        } else {
+          onCategoryChange("");
         }
       }
       
@@ -182,11 +186,13 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={`${cat.emoji} ${cat.name}`}>
-                {cat.emoji} {cat.name}
-              </SelectItem>
-            ))}
+            {categories
+              .filter((cat) => /^[0-9a-fA-F-]{36}$/.test(cat.id))
+              .map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.emoji} {cat.name}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
         <Button 
