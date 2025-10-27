@@ -9,6 +9,7 @@ import { CategorySelect } from "./forms/CategorySelect";
 import { ChannelSelect } from "./forms/ChannelSelect";
 import { RecurringTransactionFields } from "./forms/RecurringTransactionFields";
 import { TransactionTypeSelect } from "./forms/TransactionTypeSelect";
+import { useToast } from "@/hooks/use-toast";
 
 interface TransactionFormProps {
   transaction?: Transaction | null;
@@ -18,6 +19,7 @@ interface TransactionFormProps {
 }
 
 const TransactionForm = ({ transaction, onSubmit, onClose, channels }: TransactionFormProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     amount: "",
     type: "expense" as TransactionType,
@@ -55,20 +57,47 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
     const amount = parseFloat(normalizedAmount);
     
     // Validation: vérifie si le montant est valide
-    if (isNaN(amount) || amount <= 0) {
-      alert("Veuillez entrer un montant valide.");
+    if (!formData.amount || isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Montant invalide",
+        description: "Veuillez entrer un montant valide.",
+        variant: "destructive",
+      });
       return;
     }
     
     // Validation: vérifie si la description est remplie
     if (!formData.description.trim()) {
-      alert("Veuillez ajouter une description.");
+      toast({
+        title: "Description manquante",
+        description: "Veuillez ajouter une description.",
+        variant: "destructive",
+      });
       return;
     }
     
     // Validation: vérifie si un canal est sélectionné
     if (!formData.channelId) {
-      alert("Veuillez sélectionner un canal.");
+      toast({
+        title: "Canal manquant",
+        description: "Veuillez sélectionner un canal.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const selectedDate = new Date(formData.date);
+    selectedDate.setHours(23, 59, 59, 999);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    
+    // Vérifie si la date n'est pas dans le futur
+    if (selectedDate > today) {
+      toast({
+        title: "Date invalide",
+        description: "La date ne peut pas être dans le futur.",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -83,12 +112,6 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
       isRecurring: formData.isRecurring,
       frequency: formData.isRecurring ? formData.frequency : undefined,
     };
-
-    // Vérifie si la date n'est pas dans le futur
-    if (newTransaction.date > new Date()) {
-      alert("La date ne peut pas être dans le futur. Ok vous êtes peut-être visionnaire mais n'abusez pas svp.");
-      return;
-    }
 
     onSubmit(newTransaction);
   };
@@ -113,7 +136,6 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
                 id="amount"
                 type="text"
                 inputMode="decimal"
-                required
                 value={formData.amount}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -136,7 +158,6 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
             <Input
               id="date"
               type="date"
-              required
               max={new Date().toISOString().split("T")[0]}
               value={formData.date}
               onChange={(e) => updateFormData("date", e.target.value)}
@@ -147,9 +168,9 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
             <Label htmlFor="description">Description</Label>
             <Input
               id="description"
-              required
               value={formData.description}
               onChange={(e) => updateFormData("description", e.target.value)}
+              placeholder="Ex: Courses chez Carrefour"
             />
           </div>
 
