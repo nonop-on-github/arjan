@@ -59,7 +59,7 @@ const Index = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  const handleSubmitTransaction = async (transaction: Transaction) => {
+  const handleSubmitTransaction = async (transaction: Transaction): Promise<boolean> => {
     const success = editingTransaction ? await updateTransaction(transaction) : await addTransaction(transaction);
     if (success) {
       if (!editingTransaction && transaction.type === "income") {
@@ -68,6 +68,7 @@ const Index = () => {
       setShowTransactionForm(false);
       setEditingTransaction(null);
     }
+    return success;
   };
   if (!mounted) {
     return null;

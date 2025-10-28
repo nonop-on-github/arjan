@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Transaction } from "@/types/finance";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { 
   fetchUserTransactions, 

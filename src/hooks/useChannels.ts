@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Channel } from "@/types/finance";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { DbChannel } from "@/types/supabaseTypes";
 

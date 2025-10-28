@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface TransactionFormProps {
   transaction?: Transaction | null;
-  onSubmit: (transaction: Transaction) => void;
+  onSubmit: (transaction: Transaction) => Promise<boolean>;
   onClose: () => void;
   channels: Channel[];
 }
@@ -30,6 +30,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
     isRecurring: false,
     frequency: "monthly" as TransactionFrequency,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (transaction) {
@@ -49,7 +50,7 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
     }
   }, [transaction, channels]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Conversion du montant avec prise en charge de la virgule
@@ -113,7 +114,19 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
       frequency: formData.isRecurring ? formData.frequency : undefined,
     };
 
-    onSubmit(newTransaction);
+    try {
+      setIsSubmitting(true);
+      const success = await onSubmit(newTransaction);
+      if (!success) {
+        toast({
+          title: "Échec",
+          description: "Impossible d'ajouter la transaction.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const updateFormData = (key: string, value: any) => {
@@ -199,8 +212,8 @@ const TransactionForm = ({ transaction, onSubmit, onClose, channels }: Transacti
             <Button variant="outline" type="button" onClick={onClose}>
               Annuler
             </Button>
-            <Button type="submit">
-              {transaction ? "Modifier" : "Ajouter"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "En cours..." : (transaction ? "Modifier" : "Ajouter")}
             </Button>
           </div>
         </form>

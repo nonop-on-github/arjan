@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import Footer from '@/components/Footer';

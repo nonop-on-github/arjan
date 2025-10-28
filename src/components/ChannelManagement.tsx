@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Channel } from "@/types/finance";
 import { X, Edit, Plus } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
