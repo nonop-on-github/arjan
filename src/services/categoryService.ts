@@ -78,3 +78,39 @@ export const deleteUserCategory = async (categoryId: string, userId: string): Pr
   if (error) throw error;
   return true;
 };
+
+// Catégories par défaut à initialiser pour un nouvel utilisateur
+const DEFAULT_CATEGORIES: Array<Omit<Category, 'id'>> = [
+  { emoji: "🥦", name: "Alimentation" },
+  { emoji: "🚌", name: "Transport" },
+  { emoji: "🏠", name: "Logement" },
+  { emoji: "🎢", name: "Loisirs" },
+  { emoji: "🩺", name: "Santé" },
+  { emoji: "🛒", name: "Shopping" },
+  { emoji: "📱", name: "Abonnements" },
+];
+
+// Insère les catégories par défaut si l'utilisateur n'en a aucune
+export const seedDefaultCategories = async (userId: string): Promise<Category[]> => {
+  const insertPayload = DEFAULT_CATEGORIES.map((c) => ({
+    user_id: userId,
+    emoji: c.emoji,
+    name: c.name,
+  }));
+
+  const { data, error } = await supabase
+    .from('categories')
+    .insert(insertPayload)
+    .select('*');
+
+  if (error) throw error;
+  return (data as DbCategory[]).map(formatDbCategory);
+};
+
+// Récupère les catégories de l'utilisateur et initialise avec des valeurs par défaut si nécessaire
+export const fetchOrInitUserCategories = async (userId: string): Promise<Category[]> => {
+  const existing = await fetchUserCategories(userId);
+  if (existing.length > 0) return existing;
+  // Aucune catégorie: initialiser avec les catégories par défaut
+  return await seedDefaultCategories(userId);
+};

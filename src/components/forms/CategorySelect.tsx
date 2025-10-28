@@ -14,19 +14,9 @@ import { Category } from "@/types/finance";
 import CategoryCreateDialog from "./CategoryCreateDialog";
 import CategoryManagementDialog from "./CategoryManagementDialog";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { fetchUserCategories, addUserCategory, updateUserCategory, deleteUserCategory } from "@/services/categoryService";
+import { fetchUserCategories, fetchOrInitUserCategories, addUserCategory, updateUserCategory, deleteUserCategory } from "@/services/categoryService";
 import { useToast } from "@/hooks/use-toast";
 
-// Catégories par défaut pour les nouveaux utilisateurs
-const defaultCategories: Category[] = [
-  { id: "default-1", emoji: "🥦", name: "Alimentation" },
-  { id: "default-2", emoji: "🚌", name: "Transport" },
-  { id: "default-3", emoji: "🏠", name: "Logement" },
-  { id: "default-4", emoji: "🎢", name: "Loisirs" },
-  { id: "default-5", emoji: "🩺", name: "Santé" },
-  { id: "default-6", emoji: "🛒", name: "Shopping" },
-  { id: "default-7", emoji: "📱", name: "Abonnements" }
-];
 
 interface CategorySelectProps {
   category: string;
@@ -34,7 +24,7 @@ interface CategorySelectProps {
 }
 
 export function CategorySelect({ category, onCategoryChange }: CategorySelectProps) {
-  const [categories, setCategories] = useState<Category[]>(defaultCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showManageDialog, setShowManageDialog] = useState(false);
   const { user } = useAuthContext();
@@ -44,17 +34,17 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
     // Charger les catégories de l'utilisateur depuis la base de données
     const loadCategories = async () => {
       if (!user) return;
-      
       try {
-        const userCategories = await fetchUserCategories(user.id);
-        if (userCategories.length > 0) {
-          setCategories(userCategories);
+        const userCategories = await fetchOrInitUserCategories(user.id);
+        setCategories(userCategories);
+        // Auto-sélectionner la première si aucune sélection actuelle
+        if (!category && userCategories.length > 0) {
+          onCategoryChange(userCategories[0].id);
         }
       } catch (error) {
         console.error("Erreur lors du chargement des catégories:", error);
       }
     };
-    
     loadCategories();
   }, [user]);
 
@@ -70,14 +60,16 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
     
     try {
       const newCategory = await addUserCategory({
-        id: "", // ID sera généré par Supabase
+        id: "", // ID sera généré par le backend
         emoji,
         name
       }, user.id);
-      
-      setCategories(prev => [...prev, newCategory]);
+
+      // Recharger depuis la base pour éviter les doublons et garder l'ordre
+      const refreshed = await fetchUserCategories(user.id);
+      setCategories(refreshed);
       onCategoryChange(newCategory.id);
-      
+
       toast({
         title: "Succès",
         description: "Catégorie créée avec succès",
@@ -104,19 +96,16 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
     
     try {
       await updateUserCategory(updatedCategory, user.id);
-      
-      setCategories(prev => 
-        prev.map(cat => 
-          cat.id === updatedCategory.id ? updatedCategory : cat
-        )
-      );
-      
+
+      const refreshed = await fetchUserCategories(user.id);
+      setCategories(refreshed);
+
       // Mettre à jour la catégorie sélectionnée si c'est celle qui a été modifiée
       const currentCategoryId = category;
       if (currentCategoryId === updatedCategory.id) {
         onCategoryChange(updatedCategory.id);
       }
-      
+
       toast({
         title: "Succès",
         description: "Catégorie modifiée avec succès",
@@ -143,23 +132,21 @@ export function CategorySelect({ category, onCategoryChange }: CategorySelectPro
     
     try {
       await deleteUserCategory(categoryId, user.id);
-      
-      // Supprimer la catégorie de la liste
-      const categoryToDelete = categories.find(cat => cat.id === categoryId);
-      setCategories(prev => prev.filter(cat => cat.id !== categoryId));
-      
+
+      // Recharger depuis la base pour éviter les incohérences
+      const refreshed = await fetchUserCategories(user.id);
+      setCategories(refreshed);
+
       // Si la catégorie supprimée était sélectionnée, sélectionner la première catégorie disponible
-      if (categoryToDelete && categoryId === category) {
-        const remainingCategories = categories
-          .filter(cat => cat.id !== categoryId)
-          .filter(cat => /^[0-9a-fA-F-]{36}$/.test(cat.id));
-        if (remainingCategories.length > 0) {
-          onCategoryChange(remainingCategories[0].id);
+      if (categoryId === category) {
+        if (refreshed.length > 0) {
+          const valid = refreshed.filter(cat => /^[0-9a-fA-F-]{36}$/.test(cat.id));
+          onCategoryChange(valid.length > 0 ? valid[0].id : "");
         } else {
           onCategoryChange("");
         }
       }
-      
+
       toast({
         title: "Succès",
         description: "Catégorie supprimée avec succès",
